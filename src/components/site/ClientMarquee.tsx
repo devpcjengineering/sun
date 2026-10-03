@@ -1,17 +1,32 @@
 import Link from "next/link";
+import { cloudinaryLoader, isCloudinaryUrl } from "@/lib/cloudinary-loader";
 import type { Client } from "@/lib/types";
-import SmartImage from "./SmartImage";
 import { ButtonLink, SectionHeading } from "./ui";
+
+/**
+ * โลโก้ในแถบไหลเป็น <img> ธรรมดา ชี้ URL เดียว (กว้าง 2 เท่าของที่แสดง) — ไม่มี srcset ต่อรูป
+ * HTML จึงเล็กลงมากเมื่อมีลูกค้าเยอะ (แถบมีสำเนาอีกชุดเพื่อให้วนต่อเนื่อง) ; เบราว์เซอร์แคช URL ซ้ำให้เอง
+ */
+function LogoImg({ url, alt }: { url: string; alt: string }) {
+  const src = isCloudinaryUrl(url) ? cloudinaryLoader({ src: url, width: 352, quality: 80 }) : url;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      width={176}
+      height={64}
+      loading="lazy"
+      decoding="async"
+      className="h-full w-full object-contain"
+    />
+  );
+}
 
 function Logo({ client }: { client: Client }) {
   const img = (
     <span className="relative block h-14 w-36 sm:h-16 sm:w-44">
-      <SmartImage
-        src={client.logo_url}
-        alt={client.name}
-        sizes="176px"
-        className="object-contain"
-      />
+      <LogoImg url={client.logo_url} alt={client.name} />
     </span>
   );
   if (client.slug) {
@@ -66,12 +81,7 @@ export default function ClientMarquee({ clients }: { clients: Client[] }) {
             {half.map((c, i) => (
               <div key={`b-${c.id}-${i}`} className="group px-6 sm:px-9">
                 <span className="relative block h-14 w-36 sm:h-16 sm:w-44">
-                  <SmartImage
-                    src={c.logo_url}
-                    alt=""
-                    sizes="176px"
-                    className="object-contain"
-                  />
+                  <LogoImg url={c.logo_url} alt="" />
                 </span>
               </div>
             ))}

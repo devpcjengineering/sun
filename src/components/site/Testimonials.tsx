@@ -30,7 +30,7 @@ export default function Testimonials({ items }: { items: Testimonial[] }) {
                 <figcaption className="mt-6 flex items-center gap-3 border-t border-line pt-5">
                   <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ink text-sm font-bold text-white">
                     {t.avatar_url ? (
-                      <SmartImage src={t.avatar_url} alt={t.name} sizes="44px" className="object-cover" />
+                      <SmartImage src={t.avatar_url} alt={t.name} fixed={{ width: 44, height: 44 }} className="h-full w-full object-cover" />
                     ) : (
                       t.name.slice(0, 1)
                     )}

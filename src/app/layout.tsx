@@ -5,7 +5,7 @@ import "./globals.css";
 const prompt = Prompt({
   variable: "--font-prompt",
   subsets: ["thai", "latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"], // ไม่ได้ใช้ 300 ที่ไหนในเว็บ
   display: "swap",
 });
 

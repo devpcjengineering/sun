@@ -24,10 +24,10 @@ type ShellUser = { email: string; name: string | null; avatar: string | null };
 
 function Brand() {
   return (
-    <Link href="/admin" className="flex items-center gap-3">
+    <Link href="/admin" className="flex min-w-0 flex-1 items-center gap-2.5">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/brand/logo-white.svg" alt="SUNNAKHON GROUP" className="h-10 w-auto" />
-      <span className="rounded bg-brand px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+      <img src="/brand/logo-white.svg" alt="SUNNAKHON GROUP" className="h-8 w-auto min-w-0 shrink sm:h-10" />
+      <span className="shrink-0 rounded bg-brand px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
         Admin
       </span>
     </Link>
@@ -85,23 +85,23 @@ export function AdminShell({
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-20 shrink-0 items-center justify-between border-b border-white/10 px-6">
+        <div className="flex h-20 shrink-0 items-center gap-3 border-b border-white/10 pl-5 pr-3 lg:px-6">
           <Brand />
           <button
             type="button"
             onClick={() => setOpen(false)}
             aria-label="ปิดเมนู"
-            className="rounded-md p-1.5 text-white/70 hover:bg-white/10 hover:text-white lg:hidden"
+            className="shrink-0 rounded-md p-2 text-white/70 hover:bg-white/10 hover:text-white lg:hidden"
           >
             <X className="size-5" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-4">
           <Suspense fallback={null}>
-            <SidebarNav unread={unread} role={role}onNavigate={() => setOpen(false)} />
+            <SidebarNav unread={unread} role={role} onNavigate={() => setOpen(false)} />
           </Suspense>
         </div>
-        <div className="shrink-0 border-t border-white/10 p-4 text-xs text-white/40">
+        <div className="shrink-0 border-t border-white/10 p-4 text-center text-xs text-white/40">
           <p>SUNNAKHON GROUP</p>
           <p>ระบบจัดการเว็บไซต์</p>
         </div>
