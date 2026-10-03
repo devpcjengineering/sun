@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { openGraphFor } from "@/lib/seo";
 import Link from "next/link";
 import CtaBand from "@/components/site/CtaBand";
 import PostCard from "@/components/site/PostCard";
@@ -22,7 +23,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     title: label ? `ผลงานของเรา - ${label}` : "ผลงานของเรา",
     description: s.seo_description,
     alternates: { canonical: "/portfolio" },
-    openGraph: { title: `ผลงานของเรา | ${s.site_name}`, description: s.seo_description, locale: "th_TH" },
+    openGraph: openGraphFor({ title: `ผลงานของเรา | ${s.site_name}`, description: s.seo_description, path: "/portfolio" }),
   };
 }
 

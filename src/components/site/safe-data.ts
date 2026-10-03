@@ -1,9 +1,11 @@
 import "server-only";
 import {
+  getClient,
   getClients,
   getPackages,
   getPost,
   getPosts,
+  getPostsByClientName,
   getServices,
   getSettings,
   getTestimonials,
@@ -142,3 +144,6 @@ export const loadPosts = (opts: { category?: string; limit?: number; featured?: 
 export const loadArticles = (opts: { limit?: number; featured?: boolean } = {}): Promise<Post[]> =>
   safe(() => getPosts({ ...opts, kind: "article" }), []);
 export const loadPost = (slug: string): Promise<Post | null> => safe(() => getPost(slug), null);
+export const loadClient = (slug: string): Promise<Client | null> => safe(() => getClient(slug), null);
+/** ผลงาน/บทความที่ทำร่วมกับลูกค้า (จับคู่ด้วยชื่อลูกค้า) */
+export const loadPostsByClient = (name: string): Promise<Post[]> => safe(() => getPostsByClientName(name), []);

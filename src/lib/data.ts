@@ -22,6 +22,25 @@ export async function getClients(): Promise<Client[]> {
   return (data ?? []) as Client[];
 }
 
+export async function getClient(slug: string): Promise<Client | null> {
+  const sb = await createClient();
+  const { data } = await sb.from("clients").select("*").eq("slug", slug).eq("published", true).maybeSingle();
+  return (data as Client) ?? null;
+}
+
+/** ผลงาน/บทความที่ระบุชื่อลูกค้านี้ (posts.client_name ตรงกับชื่อลูกค้า) */
+export async function getPostsByClientName(name: string, limit = 12): Promise<Post[]> {
+  const sb = await createClient();
+  const { data } = await sb
+    .from("posts")
+    .select("*")
+    .eq("published", true)
+    .ilike("client_name", name)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []) as Post[];
+}
+
 export async function getPackages(): Promise<Package[]> {
   const sb = await createClient();
   const { data } = await sb.from("packages").select("*").eq("published", true).order("sort_order");

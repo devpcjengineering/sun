@@ -151,6 +151,20 @@ create table if not exists public.clients (
   created_at timestamptz not null default now()
 );
 
+-- หน้าแยกของลูกค้า /customers/[slug]
+alter table public.clients add column if not exists slug text;
+alter table public.clients add column if not exists description text;
+update public.clients
+   set slug = coalesce(
+         nullif(trim(both '-' from regexp_replace(lower(name), '[^a-z0-9]+', '-', 'g')), ''),
+         'c-' || substr(id::text, 1, 8)
+       )
+ where slug is null;
+-- กันซ้ำ: ถ้าซ้ำให้ต่อท้ายด้วยรหัสสั้น
+update public.clients c set slug = c.slug || '-' || substr(c.id::text, 1, 4)
+ where exists (select 1 from public.clients d where d.slug = c.slug and d.id <> c.id and d.created_at < c.created_at);
+create unique index if not exists clients_slug_key on public.clients (slug);
+
 -- ───────── packages (แพ็กเกจ/ราคา) ─────────
 create table if not exists public.packages (
   id uuid primary key default gen_random_uuid(),

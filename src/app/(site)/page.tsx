@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { openGraphFor, twitterFor } from "@/lib/seo";
 import ClientMarquee from "@/components/site/ClientMarquee";
 import CtaBand from "@/components/site/CtaBand";
 import Hero from "@/components/site/Hero";
@@ -26,7 +27,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: s.seo_title },
     description: s.seo_description,
     alternates: { canonical: "/" },
-    openGraph: { title: s.seo_title, description: s.seo_description, type: "website", locale: "th_TH" },
+    openGraph: openGraphFor({ title: s.seo_title, description: s.seo_description, path: "/", images: s.hero_image_url ? [{ url: s.hero_image_url }] : undefined }),
+    twitter: twitterFor({ title: s.seo_title, description: s.seo_description, image: s.hero_image_url ?? undefined }),
   };
 }
 

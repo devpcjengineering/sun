@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { openGraphFor } from "@/lib/seo";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { FacebookIcon, LineIcon } from "@/components/site/brand-icons";
 import ContactForm from "@/components/site/ContactForm";
@@ -12,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "ติดต่อเรา",
     description: s.seo_description,
     alternates: { canonical: "/contact" },
-    openGraph: { title: `ติดต่อเรา | ${s.site_name}`, description: s.seo_description, locale: "th_TH" },
+    openGraph: openGraphFor({ title: `ติดต่อเรา | ${s.site_name}`, description: s.seo_description, path: "/contact" }),
   };
 }
 

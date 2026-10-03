@@ -10,7 +10,7 @@ export type AdminFormState = { error?: string; ok?: string };
 const EmailSchema = z.string().trim().toLowerCase().min(1, "กรุณากรอกอีเมล").max(254).pipe(z.email("รูปแบบอีเมลไม่ถูกต้อง"));
 const RoleSchema = z.enum(ROLES, { error: "สิทธิ์ไม่ถูกต้อง" });
 
-const NO_PERMISSION_MSG = "ไม่มีสิทธิ์ — เฉพาะแอดมินและ Dev เท่านั้นที่จัดการผู้ดูแลระบบได้";
+const NO_PERMISSION_MSG = "ไม่มีสิทธิ์ — เฉพาะ Administrator และ Developer เท่านั้นที่จัดการผู้ดูแลระบบได้";
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 /** จำนวนผู้ใช้ที่มีสิทธิ์ admin หรือ dev */
@@ -66,7 +66,7 @@ export async function removeAdmin(fd: FormData) {
 
   const { data: target } = await supabase.from("admins").select("role").ilike("email", escapeLike(email)).maybeSingle();
   if (target && canManage(target.role) && (await countManagers(supabase)) <= 1) {
-    fail("ไม่สามารถลบแอดมิน/Dev คนสุดท้ายได้");
+    fail("ไม่สามารถลบ Administrator/Developer คนสุดท้ายได้");
   }
 
   const { error } = await supabase.from("admins").delete().ilike("email", escapeLike(email));
@@ -97,7 +97,7 @@ export async function updateAdminRole(fd: FormData) {
   const demoting = canManage(target.role) && !canManage(role);
   if (demoting) {
     if ((me.user.email ?? "").toLowerCase() === email) fail("ไม่สามารถลดสิทธิ์ของตัวเองได้");
-    if ((await countManagers(supabase)) <= 1) fail("ไม่สามารถลดสิทธิ์แอดมิน/Dev คนสุดท้ายได้");
+    if ((await countManagers(supabase)) <= 1) fail("ไม่สามารถลดสิทธิ์ Administrator/Developer คนสุดท้ายได้");
   }
 
   const { error } = await supabase.from("admins").update({ role }).ilike("email", escapeLike(email));

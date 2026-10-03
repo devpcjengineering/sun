@@ -1,6 +1,7 @@
+import Link from "next/link";
 import type { Client } from "@/lib/types";
 import SmartImage from "./SmartImage";
-import { SectionHeading } from "./ui";
+import { ButtonLink, SectionHeading } from "./ui";
 
 function Logo({ client }: { client: Client }) {
   const img = (
@@ -13,6 +14,17 @@ function Logo({ client }: { client: Client }) {
       />
     </span>
   );
+  if (client.slug) {
+    return (
+      <Link
+        href={`/customers/${encodeURIComponent(client.slug)}`}
+        className="group block px-6 sm:px-9"
+        aria-label={client.name}
+      >
+        {img}
+      </Link>
+    );
+  }
   return client.website_url ? (
     <a
       href={client.website_url}
@@ -65,6 +77,11 @@ export default function ClientMarquee({ clients }: { clients: Client[] }) {
             ))}
           </div>
         </div>
+      </div>
+      <div className="mt-10 flex justify-center px-5">
+        <ButtonLink href="/customers" variant="outline" arrow>
+          ดูลูกค้าทั้งหมด
+        </ButtonLink>
       </div>
     </section>
   );

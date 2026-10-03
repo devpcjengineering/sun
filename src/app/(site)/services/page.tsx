@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { openGraphFor } from "@/lib/seo";
 import { Check } from "lucide-react";
 import CtaBand from "@/components/site/CtaBand";
 import { ServiceIcon } from "@/components/site/icons";
@@ -13,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "บริการของเรา",
     description: s.seo_description,
     alternates: { canonical: "/services" },
-    openGraph: { title: `บริการของเรา | ${s.site_name}`, description: s.seo_description, locale: "th_TH" },
+    openGraph: openGraphFor({ title: `บริการของเรา | ${s.site_name}`, description: s.seo_description, path: "/services" }),
   };
 }
 

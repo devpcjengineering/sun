@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { openGraphFor } from "@/lib/seo";
 import CtaBand from "@/components/site/CtaBand";
 import PackageCard from "@/components/site/PackageCard";
 import Reveal from "@/components/site/Reveal";
@@ -11,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "แพ็คเก็จ/ราคา",
     description: s.seo_description,
     alternates: { canonical: "/packages" },
-    openGraph: { title: `แพ็คเก็จ/ราคา | ${s.site_name}`, description: s.seo_description, locale: "th_TH" },
+    openGraph: openGraphFor({ title: `แพ็คเก็จ/ราคา | ${s.site_name}`, description: s.seo_description, path: "/packages" }),
   };
 }
 

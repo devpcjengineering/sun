@@ -59,7 +59,16 @@ export async function GET() {
   }
 
   if (clients.length) {
-    L.push("## ลูกค้าที่เคยร่วมงาน", "", clients.map((c) => c.name).join(", "), "");
+    L.push("## ลูกค้าที่เคยร่วมงาน", "", `ดูทั้งหมด: ${base}/customers`, "");
+    for (const c of clients) {
+      const desc = c.description ? c.description.replace(/\s+/g, " ").trim().slice(0, 200) : "";
+      L.push(
+        c.slug
+          ? `- [${c.name}](${base}/customers/${encodeURIComponent(c.slug)})${desc ? `: ${desc}` : ""}`
+          : `- ${c.name}`,
+      );
+    }
+    L.push("");
   }
 
   if (works.length) {

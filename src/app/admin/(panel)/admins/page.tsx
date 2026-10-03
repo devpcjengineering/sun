@@ -54,7 +54,7 @@ export default async function AdminsPage({ searchParams }: { searchParams: Promi
               <li key={a.email} className="flex items-center justify-between gap-3 px-5 py-4">
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
-                    <span className="truncate">{a.email}</span>
+                    <span className="break-all">{a.email}</span>
                     <Badge tone={ROLE_TONE[a.role]}>{ROLE_LABELS[a.role]}</Badge>
                     {isMe && <Badge tone="black">คุณ</Badge>}
                   </p>

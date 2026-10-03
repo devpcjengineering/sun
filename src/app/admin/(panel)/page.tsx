@@ -136,7 +136,7 @@ export default async function DashboardPage() {
         <img src="/brand/logo-black.svg" alt="SUNNAKHON GROUP" className="h-10 w-auto" />
         <div className="hidden h-10 w-px bg-line sm:block" aria-hidden />
         <div className="min-w-0">
-          <p className="truncate text-lg font-semibold text-ink">สวัสดี, {displayName}</p>
+          <p className="break-all text-lg font-semibold text-ink">สวัสดี, {displayName}</p>
           <p className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-muted">
             ยินดีต้อนรับสู่ระบบจัดการเว็บไซต์
             {role && <Badge tone={role === "admin" ? "red" : role === "dev" ? "black" : "gray"}>{ROLE_LABELS[role]}</Badge>}
@@ -231,26 +231,6 @@ export default async function DashboardPage() {
               ))}
             </ul>
           </Card>
-
-          {manage && (
-            <Card>
-              <h2 className="mb-1 font-semibold text-ink">ตั้งค่าอัปโหลดรูป (Cloudinary)</h2>
-              <p className="mb-3 text-xs text-muted">
-                ระบบเซ็นชื่อ/ลบรูปทำงานผ่าน Supabase Edge Functions — ตรวจสอบจากหน้านี้ไม่ได้ ถ้าอัปโหลดรูปไม่ได้ให้ทำตามขั้นตอนนี้
-              </p>
-              <ol className="list-decimal space-y-1.5 pl-5 text-xs text-muted">
-                <li>
-                  ตั้ง secrets:{" "}
-                  <code className="rounded bg-soft px-1">supabase secrets set CLOUDINARY_CLOUD_NAME=… CLOUDINARY_API_KEY=… CLOUDINARY_API_SECRET=…</code>
-                </li>
-                <li>
-                  Deploy:{" "}
-                  <code className="rounded bg-soft px-1">supabase functions deploy cloudinary-sign cloudinary-delete</code>
-                </li>
-                <li>ลองอัปโหลดรูปปกในหน้า เพิ่มผลงาน/เขียนบทความ เพื่อทดสอบ</li>
-              </ol>
-            </Card>
-          )}
 
           <Card>
             <h2 className="mb-3 font-semibold text-ink">ทางลัด</h2>

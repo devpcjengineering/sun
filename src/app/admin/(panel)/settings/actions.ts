@@ -91,7 +91,7 @@ const LABELS: Record<string, string> = {
 export async function saveSettings(_prev: ActionState, fd: FormData): Promise<ActionState> {
   const ctx = await getAdminContext();
   if (!ctx) return NO_PERMISSION;
-  if (!canManage(ctx.role)) return { ok: false, error: "ไม่มีสิทธิ์ — เฉพาะแอดมินและ Dev เท่านั้นที่แก้ไขการตั้งค่าเว็บไซต์ได้" };
+  if (!canManage(ctx.role)) return { ok: false, error: "ไม่มีสิทธิ์ — เฉพาะ Administrator และ Developer เท่านั้นที่แก้ไขการตั้งค่าเว็บไซต์ได้" };
 
   const values = fd.getAll("stats_value").map((v) => (typeof v === "string" ? v : ""));
   const labels = fd.getAll("stats_label").map((v) => (typeof v === "string" ? v : ""));

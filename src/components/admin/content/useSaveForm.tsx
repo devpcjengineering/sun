@@ -1,6 +1,7 @@
 "use client";
 import { startTransition, useActionState, type FormEvent, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
+import { useBusyWhile } from "@/lib/busy";
 import { btnPrimary } from "../ui";
 import type { ActionState } from "./FormMessage";
 
@@ -27,6 +28,7 @@ export function SaveButton({
   children?: ReactNode;
   className?: string;
 }) {
+  useBusyWhile(pending, "กำลังบันทึก…");
   return (
     <button type="submit" disabled={pending} className={className}>
       {pending && <Loader2 className="size-4 animate-spin" aria-hidden />}

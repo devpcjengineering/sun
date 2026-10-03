@@ -40,7 +40,7 @@ export function AddAdminForm() {
         </SubmitButton>
       </div>
       <p className="text-xs text-muted">
-        ใช้อีเมลเดียวกับบัญชี Google ที่จะใช้ล็อกอิน (เช่น Gmail) · แอดมิน/Dev = จัดการได้ทุกอย่าง · Staff = จัดการเนื้อหาเท่านั้น (ไม่มีสิทธิ์ตั้งค่าเว็บไซต์และผู้ดูแลระบบ)
+        ใช้อีเมลเดียวกับบัญชี Google ที่จะใช้ล็อกอิน (เช่น Gmail) · Administrator/Developer = จัดการได้ทุกอย่าง · Staff = จัดการเนื้อหาเท่านั้น (ไม่มีสิทธิ์ตั้งค่าเว็บไซต์และผู้ดูแลระบบ)
       </p>
       {state.error && (
         <p role="alert" className="flex items-center gap-1.5 text-sm text-brand">

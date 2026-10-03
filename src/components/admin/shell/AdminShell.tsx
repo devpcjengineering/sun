@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ExternalLink, LogOut, Menu, X } from "lucide-react";
 import { ROLE_LABELS, type Role } from "@/lib/types";
 import { SidebarNav } from "./SidebarNav";
+import { BusyOverlay } from "./BusyOverlay";
 
 const ROLE_TONE: Record<Role, string> = {
   admin: "bg-brand/10 text-brand",
@@ -66,6 +67,8 @@ export function AdminShell({
 
   return (
     <div className="min-h-screen bg-soft">
+      {/* ตัวโหลดรวม: อัปโหลด/บันทึก/ลบ — ล็อกจอจนงานเสร็จ แล้วจางหายนุ่ม ๆ */}
+      <BusyOverlay />
       {/* backdrop (มือถือ) */}
       {open && (
         <button
@@ -137,10 +140,10 @@ export function AdminShell({
 
           <div className="flex items-center gap-2.5">
             <Avatar user={user} />
-            <div className="hidden min-w-0 leading-tight md:block">
-              {user.name && <p className="max-w-48 truncate text-sm font-medium text-ink">{user.name}</p>}
+            <div className="hidden leading-tight md:block">
+              {user.name && <p className="text-sm font-medium text-ink">{user.name}</p>}
               <p className="flex items-center gap-1.5 text-xs text-muted">
-                <span className="max-w-40 truncate">{user.email}</span>
+                <span className="break-all">{user.email}</span>
                 <RoleBadge role={role} />
               </p>
             </div>

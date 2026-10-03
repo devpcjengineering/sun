@@ -8,6 +8,7 @@ import { RowControls } from "@/components/admin/content/RowControls";
 import { deleteImage, uploadImage } from "@/lib/upload";
 import type { Client } from "@/lib/types";
 import { deleteClient, moveClient, toggleClient, updateClientLogo } from "./actions";
+import { SlugField } from "./SlugField";
 
 const actions = { toggle: toggleClient, move: moveClient, remove: deleteClient };
 
@@ -51,6 +52,17 @@ export function ClientCard({ client, isFirst, isLast }: { client: Client; isFirs
             </a>
           ) : (
             <p className="mt-0.5 text-xs text-muted/70">ไม่ระบุเว็บไซต์</p>
+          )}
+          {client.slug && client.published && (
+            <a
+              href={`/customers/${client.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
+            >
+              <ExternalLink className="size-3 shrink-0" aria-hidden />
+              ดูหน้าลูกค้า
+            </a>
           )}
         </div>
         <div className="mt-auto">
@@ -150,6 +162,17 @@ function ClientEditForm({ client, onClose }: { client: Client; onClose: () => vo
           defaultValue={client.website_url ?? ""}
           className={inputCls}
           placeholder="https://"
+        />
+      </Field>
+      <SlugField defaultValue={client.slug ?? ""} />
+      <Field label="รายละเอียดลูกค้า" hint="แสดงในหน้าลูกค้า">
+        <textarea
+          name="description"
+          rows={4}
+          maxLength={2000}
+          defaultValue={client.description ?? ""}
+          className={inputCls}
+          placeholder="เล่าโดยย่อเกี่ยวกับลูกค้า / งานที่เคยร่วมกัน"
         />
       </Field>
       <FormMessage state={state} />

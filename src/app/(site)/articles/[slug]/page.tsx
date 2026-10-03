@@ -10,6 +10,7 @@ import { loadArticles, loadPost, loadSettings } from "@/components/site/safe-dat
 import SmartImage from "@/components/site/SmartImage";
 import { ButtonLink, Container, SectionHeading } from "@/components/site/ui";
 import { formatThaiDate, siteUrl } from "@/components/site/utils";
+import { openGraphFor, twitterFor } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -31,20 +32,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: post.title,
     description,
     alternates: { canonical: `/articles/${post.slug}` },
-    openGraph: {
+    openGraph: openGraphFor({
       title: post.title,
       description,
+      path: `/articles/${post.slug}`,
       type: "article",
-      locale: "th_TH",
       publishedTime: post.published_at ?? undefined,
       images: post.cover_url ? [{ url: post.cover_url }] : undefined,
-    },
-    twitter: {
-      card: post.cover_url ? "summary_large_image" : "summary",
-      title: post.title,
-      description,
-      images: post.cover_url ? [post.cover_url] : undefined,
-    },
+    }),
+    twitter: twitterFor({ title: post.title, description, image: post.cover_url ?? undefined }),
   };
 }
 

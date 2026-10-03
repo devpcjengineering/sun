@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { openGraphFor } from "@/lib/seo";
 import CtaBand from "@/components/site/CtaBand";
 import PostCard from "@/components/site/PostCard";
 import Reveal from "@/components/site/Reveal";
@@ -12,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "บทความ",
     description,
     alternates: { canonical: "/articles" },
-    openGraph: { title: `บทความ | ${s.site_name}`, description, locale: "th_TH" },
+    openGraph: openGraphFor({ title: `บทความ | ${s.site_name}`, description, path: "/articles" }),
   };
 }
 

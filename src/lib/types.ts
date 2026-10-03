@@ -80,6 +80,8 @@ export type Post = {
 
 export type Client = {
   id: string;
+  slug: string | null; // ใช้ใน /customers/[slug]
+  description: string | null;
   name: string;
   logo_url: string;
   logo_public_id: string | null;
@@ -129,8 +131,8 @@ export const ROLES = ["admin", "dev", "staff"] as const;
 export type Role = (typeof ROLES)[number];
 
 export const ROLE_LABELS: Record<Role, string> = {
-  admin: "แอดมิน",
-  dev: "Dev",
+  admin: "Administrator",
+  dev: "Developer",
   staff: "Staff",
 };
 
