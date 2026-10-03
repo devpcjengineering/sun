@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LogIn, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { NAV_LINKS } from "./utils";
 
 export default function Header() {
@@ -69,13 +69,6 @@ export default function Header() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="/admin"
-            className="hidden items-center gap-1.5 rounded-full border border-line px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:inline-flex"
-          >
-            <LogIn className="h-4 w-4" aria-hidden="true" />
-            เข้าสู่ระบบแอดมิน
-          </Link>
-          <Link
             href="/contact"
             className="hidden rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:inline-flex"
           >
@@ -114,14 +107,6 @@ export default function Header() {
               className="mt-5 inline-flex justify-center rounded-full bg-brand px-6 py-3.5 font-semibold text-white"
             >
               ติดต่อเรา
-            </Link>
-            <Link
-              href="/admin"
-              onClick={() => setOpen(false)}
-              className="mt-3 inline-flex items-center justify-center gap-2 rounded-full border border-line px-6 py-3.5 font-semibold text-ink"
-            >
-              <LogIn className="h-5 w-5" aria-hidden="true" />
-              เข้าสู่ระบบแอดมิน
             </Link>
           </nav>
         </div>
