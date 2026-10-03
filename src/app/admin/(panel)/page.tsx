@@ -12,6 +12,7 @@ import {
   Inbox,
   Plus,
   Sparkles,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 import { createClient, getAdminContext } from "@/lib/supabase/server";
@@ -241,6 +242,7 @@ export default async function DashboardPage() {
               </Link>
               {manage && (
                 <Link href="/admin/settings" className={`${btnGhost} justify-start`}>
+                  <Wrench className="size-4" />
                   ตั้งค่าเว็บไซต์
                 </Link>
               )}
