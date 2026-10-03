@@ -2,7 +2,22 @@
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ExternalLink, LogOut, Menu, X } from "lucide-react";
+import { ROLE_LABELS, type Role } from "@/lib/types";
 import { SidebarNav } from "./SidebarNav";
+
+const ROLE_TONE: Record<Role, string> = {
+  admin: "bg-brand/10 text-brand",
+  dev: "bg-ink text-white",
+  staff: "bg-soft text-muted",
+};
+
+function RoleBadge({ role }: { role: Role }) {
+  return (
+    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium leading-none ${ROLE_TONE[role]}`}>
+      {ROLE_LABELS[role]}
+    </span>
+  );
+}
 
 type ShellUser = { email: string; name: string | null; avatar: string | null };
 
@@ -10,7 +25,7 @@ function Brand() {
   return (
     <Link href="/admin" className="flex items-center gap-3">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/brand/logo-white.svg" alt="SUNNAKHON GROUP" className="h-9 w-auto" />
+      <img src="/brand/logo-white.svg" alt="SUNNAKHON GROUP" className="h-10 w-auto" />
       <span className="rounded bg-brand px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
         Admin
       </span>
@@ -30,10 +45,12 @@ function Avatar({ user }: { user: ShellUser }) {
 
 export function AdminShell({
   user,
+  role,
   unread,
   children,
 }: {
   user: ShellUser;
+  role: Role;
   unread: number;
   children: ReactNode;
 }) {
@@ -65,7 +82,7 @@ export function AdminShell({
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-5">
+        <div className="flex h-20 shrink-0 items-center justify-between border-b border-white/10 px-6">
           <Brand />
           <button
             type="button"
@@ -78,7 +95,7 @@ export function AdminShell({
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-4">
           <Suspense fallback={null}>
-            <SidebarNav unread={unread} onNavigate={() => setOpen(false)} />
+            <SidebarNav unread={unread} role={role}onNavigate={() => setOpen(false)} />
           </Suspense>
         </div>
         <div className="shrink-0 border-t border-white/10 p-4 text-xs text-white/40">
@@ -100,6 +117,12 @@ export function AdminShell({
             <Menu className="size-5" />
           </button>
 
+          {/* โลโก้บน top bar (มือถือ/แท็บเล็ต — ตอน sidebar พับอยู่) */}
+          <Link href="/admin" aria-label="SUNNAKHON GROUP — แดชบอร์ด" className="flex items-center lg:hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/logo-black.svg" alt="SUNNAKHON GROUP" className="h-8 w-auto" />
+          </Link>
+
           <div className="flex-1" />
 
           <Link
@@ -116,7 +139,10 @@ export function AdminShell({
             <Avatar user={user} />
             <div className="hidden min-w-0 leading-tight md:block">
               {user.name && <p className="max-w-48 truncate text-sm font-medium text-ink">{user.name}</p>}
-              <p className="max-w-48 truncate text-xs text-muted">{user.email}</p>
+              <p className="flex items-center gap-1.5 text-xs text-muted">
+                <span className="max-w-40 truncate">{user.email}</span>
+                <RoleBadge role={role} />
+              </p>
             </div>
           </div>
 

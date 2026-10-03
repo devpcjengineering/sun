@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { createClient, getAdminUser } from "@/lib/supabase/server";
+import { createClient, getAdminContext } from "@/lib/supabase/server";
 import { AdminShell } from "@/components/admin/shell/AdminShell";
 
 export const metadata: Metadata = {
@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 };
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
-  const user = await getAdminUser();
-  if (!user) {
+  const ctx = await getAdminContext();
+  if (!ctx) {
     // แยกกรณี "ยังไม่ล็อกอิน" กับ "ล็อกอินแล้วแต่ไม่ใช่แอดมิน"
     const supabase = await createClient();
     const {
@@ -19,6 +19,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     redirect(anyUser ? "/login?error=not_admin" : "/login");
   }
 
+  const { user, role } = ctx;
   const supabase = await createClient();
   const { count } = await supabase
     .from("inquiries")
@@ -35,6 +36,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         name: str(meta.full_name) ?? str(meta.name),
         avatar: str(meta.avatar_url) ?? str(meta.picture),
       }}
+      role={role}
       unread={count ?? 0}
     >
       {children}

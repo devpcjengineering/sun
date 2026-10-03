@@ -1,23 +1,30 @@
 import type { Metadata } from "next";
 import { AlertTriangle, Trash2 } from "lucide-react";
-import { createClient, getAdminUser } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { createClient, getAdminContext } from "@/lib/supabase/server";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/admin/ui";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
+import { canManage, isRole, ROLE_LABELS, type Role } from "@/lib/types";
 import { AddAdminForm } from "./AddAdminForm";
+import { RoleSelect } from "./RoleSelect";
 import { removeAdmin } from "./actions";
 
 export const metadata: Metadata = { title: "ผู้ดูแลระบบ" };
 
-type AdminRow = { email: string; created_at: string };
+type AdminRow = { email: string; role: string; created_at: string };
+
+const ROLE_TONE: Record<Role, "gray" | "red" | "green" | "black"> = { admin: "red", dev: "black", staff: "gray" };
 
 export default async function AdminsPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const sp = await searchParams;
-  const me = await getAdminUser();
-  const myEmail = (me?.email ?? "").toLowerCase();
+  const ctx = await getAdminContext();
+  if (!ctx || !canManage(ctx.role)) redirect("/admin");
+  const myEmail = (ctx.user.email ?? "").toLowerCase();
 
   const supabase = await createClient();
-  const { data, error } = await supabase.from("admins").select("email, created_at").order("created_at", { ascending: true });
-  const admins = (data ?? []) as AdminRow[];
+  const { data, error } = await supabase.from("admins").select("email, role, created_at").order("created_at", { ascending: true });
+  const admins = ((data ?? []) as AdminRow[]).map((a) => ({ ...a, role: isRole(a.role) ? a.role : ("staff" as Role) }));
+  const managerCount = admins.filter((a) => canManage(a.role)).length;
   const errorMsg = sp.error?.slice(0, 300) ?? (error ? `อ่านข้อมูลไม่สำเร็จ: ${error.message}` : null);
 
   return (
@@ -42,12 +49,13 @@ export default async function AdminsPage({ searchParams }: { searchParams: Promi
         <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
           {admins.map((a) => {
             const isMe = a.email.toLowerCase() === myEmail;
-            const isLast = admins.length <= 1;
+            const isLast = admins.length <= 1 || (canManage(a.role) && managerCount <= 1);
             return (
               <li key={a.email} className="flex items-center justify-between gap-3 px-5 py-4">
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
                     <span className="truncate">{a.email}</span>
+                    <Badge tone={ROLE_TONE[a.role]}>{ROLE_LABELS[a.role]}</Badge>
                     {isMe && <Badge tone="black">คุณ</Badge>}
                   </p>
                   <p className="mt-0.5 text-xs text-muted">
@@ -55,6 +63,9 @@ export default async function AdminsPage({ searchParams }: { searchParams: Promi
                     {new Intl.DateTimeFormat("th-TH", { dateStyle: "medium", timeZone: "Asia/Bangkok" }).format(new Date(a.created_at))}
                   </p>
                 </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  {/* ลดสิทธิ์ตัวเอง / แอดมิน-Dev คนสุดท้ายไม่ได้ → ล็อก dropdown */}
+                  <RoleSelect email={a.email} role={a.role} disabled={isMe || isLast} />
                 {isMe || isLast ? (
                   <span className="text-xs text-muted">{isMe ? "ลบตัวเองไม่ได้" : "ผู้ดูแลคนสุดท้าย"}</span>
                 ) : (
@@ -69,6 +80,7 @@ export default async function AdminsPage({ searchParams }: { searchParams: Promi
                     </ConfirmButton>
                   </form>
                 )}
+                </div>
               </li>
             );
           })}

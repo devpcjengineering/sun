@@ -1,5 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import type { User } from "@supabase/supabase-js";
+import { isRole, type Role } from "@/lib/types";
 
 /** Supabase client สำหรับ Server Component / Server Action / Route Handler */
 export async function createClient() {
@@ -20,6 +22,21 @@ export async function createClient() {
       },
     },
   );
+}
+
+/** คืน {user, role} ถ้าล็อกอินและอยู่ในตาราง admins ไม่งั้นคืน null */
+export async function getAdminContext(): Promise<{ user: User; role: Role } | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data: ok } = await supabase.rpc("is_admin");
+  if (!ok) return null;
+  const { data: r } = await supabase.rpc("admin_role");
+  // ถ้าอ่านสิทธิ์ไม่ได้ ให้ถือเป็นสิทธิ์ต่ำสุด (staff)
+  const role: Role = isRole(r) ? r : "staff";
+  return { user, role };
 }
 
 /** คืน user ถ้าล็อกอินและอยู่ในตาราง admins ไม่งั้นคืน null */

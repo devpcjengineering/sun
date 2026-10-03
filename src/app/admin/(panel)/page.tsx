@@ -14,9 +14,9 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAdminContext } from "@/lib/supabase/server";
 import { Badge, btnDark, btnGhost, btnPrimary, Card, EmptyState, PageHeader } from "@/components/admin/ui";
-import type { Inquiry } from "@/lib/types";
+import { canManage, ROLE_LABELS, type Inquiry } from "@/lib/types";
 
 export const metadata: Metadata = { title: "แดชบอร์ด" };
 
@@ -82,6 +82,12 @@ const STATUS_BADGE = {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
+  const ctx = await getAdminContext();
+  const role = ctx?.role ?? null;
+  const manage = canManage(role);
+  const meta = (ctx?.user.user_metadata ?? {}) as Record<string, unknown>;
+  const metaName = [meta.full_name, meta.name].find((v): v is string => typeof v === "string" && v !== "");
+  const displayName = metaName ?? ctx?.user.email ?? "ผู้ดูแลระบบ";
 
   const head = (table: string) => supabase.from(table).select("id", { count: "exact", head: true });
 
@@ -115,8 +121,8 @@ export default async function DashboardPage() {
     },
     {
       ok: siteUrlOk,
-      title: "กำหนด URL ของเว็บไซต์ (สำหรับ sitemap / OG)",
-      hint: "เพิ่ม NEXT_PUBLIC_SITE_URL เช่น https://www.example.com",
+      title: "กำหนด URL ของเว็บไซต์",
+      hint: "เพิ่ม NEXT_PUBLIC_SITE_URL เช่น https://www.sunnakhongroup.com",
     },
     { ok: hasPost, title: "มีผลงานหรือบทความที่เผยแพร่แล้วอย่างน้อย 1 รายการ", hint: "ไปที่เมนู ผลงาน หรือ บทความ แล้วกดเพิ่มรายการใหม่" },
     { ok: hasClient, title: "เพิ่มโลโก้ลูกค้าอย่างน้อย 1 รายการ", hint: "ไปที่เมนู ลูกค้าที่เคยร่วมงาน (โลโก้)" },
@@ -125,6 +131,19 @@ export default async function DashboardPage() {
 
   return (
     <>
+      <Card className="mb-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/logo-black.svg" alt="SUNNAKHON GROUP" className="h-10 w-auto" />
+        <div className="hidden h-10 w-px bg-line sm:block" aria-hidden />
+        <div className="min-w-0">
+          <p className="truncate text-lg font-semibold text-ink">สวัสดี, {displayName}</p>
+          <p className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-muted">
+            ยินดีต้อนรับสู่ระบบจัดการเว็บไซต์
+            {role && <Badge tone={role === "admin" ? "red" : role === "dev" ? "black" : "gray"}>{ROLE_LABELS[role]}</Badge>}
+          </p>
+        </div>
+      </Card>
+
       <PageHeader
         title="แดชบอร์ด"
         desc="ภาพรวมเว็บไซต์ SUNNAKHON GROUP"
@@ -213,23 +232,25 @@ export default async function DashboardPage() {
             </ul>
           </Card>
 
-          <Card>
-            <h2 className="mb-1 font-semibold text-ink">ตั้งค่าอัปโหลดรูป (Cloudinary)</h2>
-            <p className="mb-3 text-xs text-muted">
-              ระบบเซ็นชื่อ/ลบรูปทำงานผ่าน Supabase Edge Functions — ตรวจสอบจากหน้านี้ไม่ได้ ถ้าอัปโหลดรูปไม่ได้ให้ทำตามขั้นตอนนี้
-            </p>
-            <ol className="list-decimal space-y-1.5 pl-5 text-xs text-muted">
-              <li>
-                ตั้ง secrets:{" "}
-                <code className="rounded bg-soft px-1">supabase secrets set CLOUDINARY_CLOUD_NAME=… CLOUDINARY_API_KEY=… CLOUDINARY_API_SECRET=…</code>
-              </li>
-              <li>
-                Deploy:{" "}
-                <code className="rounded bg-soft px-1">supabase functions deploy cloudinary-sign cloudinary-delete</code>
-              </li>
-              <li>ลองอัปโหลดรูปปกในหน้า เพิ่มผลงาน/เขียนบทความ เพื่อทดสอบ</li>
-            </ol>
-          </Card>
+          {manage && (
+            <Card>
+              <h2 className="mb-1 font-semibold text-ink">ตั้งค่าอัปโหลดรูป (Cloudinary)</h2>
+              <p className="mb-3 text-xs text-muted">
+                ระบบเซ็นชื่อ/ลบรูปทำงานผ่าน Supabase Edge Functions — ตรวจสอบจากหน้านี้ไม่ได้ ถ้าอัปโหลดรูปไม่ได้ให้ทำตามขั้นตอนนี้
+              </p>
+              <ol className="list-decimal space-y-1.5 pl-5 text-xs text-muted">
+                <li>
+                  ตั้ง secrets:{" "}
+                  <code className="rounded bg-soft px-1">supabase secrets set CLOUDINARY_CLOUD_NAME=… CLOUDINARY_API_KEY=… CLOUDINARY_API_SECRET=…</code>
+                </li>
+                <li>
+                  Deploy:{" "}
+                  <code className="rounded bg-soft px-1">supabase functions deploy cloudinary-sign cloudinary-delete</code>
+                </li>
+                <li>ลองอัปโหลดรูปปกในหน้า เพิ่มผลงาน/เขียนบทความ เพื่อทดสอบ</li>
+              </ol>
+            </Card>
+          )}
 
           <Card>
             <h2 className="mb-3 font-semibold text-ink">ทางลัด</h2>
@@ -238,9 +259,11 @@ export default async function DashboardPage() {
                 <Sparkles className="size-4" />
                 จัดการบริการ
               </Link>
-              <Link href="/admin/settings" className={`${btnGhost} justify-start`}>
-                ตั้งค่าเว็บไซต์
-              </Link>
+              {manage && (
+                <Link href="/admin/settings" className={`${btnGhost} justify-start`}>
+                  ตั้งค่าเว็บไซต์
+                </Link>
+              )}
             </div>
           </Card>
         </div>

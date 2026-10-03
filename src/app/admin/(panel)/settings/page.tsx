@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import { EmptyState, PageHeader } from "@/components/admin/ui";
-import { createClient } from "@/lib/supabase/server";
-import type { SiteSettings } from "@/lib/types";
+import { redirect } from "next/navigation";
+import { createClient, getAdminContext } from "@/lib/supabase/server";
+import { canManage, type SiteSettings } from "@/lib/types";
 import { SettingsForm } from "./SettingsForm";
 
 export const metadata: Metadata = { title: "ตั้งค่าเว็บไซต์" };
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
+  const ctx = await getAdminContext();
+  if (!ctx || !canManage(ctx.role)) redirect("/admin");
+
   const sb = await createClient();
   const { data, error } = await sb.from("site_settings").select("*").eq("id", 1).maybeSingle();
 

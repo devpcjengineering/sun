@@ -1,12 +1,12 @@
 "use server";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAdminContext } from "@/lib/supabase/server";
+import { canManage } from "@/lib/types";
 import type { ActionState } from "@/components/admin/content/FormMessage";
 import {
   NO_PERMISSION,
   destroyImage,
   field,
-  isAdmin,
   optImageUrl,
   optLink,
   optPublicId,
@@ -89,7 +89,9 @@ const LABELS: Record<string, string> = {
 };
 
 export async function saveSettings(_prev: ActionState, fd: FormData): Promise<ActionState> {
-  if (!(await isAdmin())) return NO_PERMISSION;
+  const ctx = await getAdminContext();
+  if (!ctx) return NO_PERMISSION;
+  if (!canManage(ctx.role)) return { ok: false, error: "ไม่มีสิทธิ์ — เฉพาะแอดมินและ Dev เท่านั้นที่แก้ไขการตั้งค่าเว็บไซต์ได้" };
 
   const values = fd.getAll("stats_value").map((v) => (typeof v === "string" ? v : ""));
   const labels = fd.getAll("stats_label").map((v) => (typeof v === "string" ? v : ""));

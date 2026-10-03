@@ -5,10 +5,18 @@
 create extension if not exists "pgcrypto";
 
 -- ───────── admins (อีเมลที่ได้สิทธิ์เข้าหลังบ้าน) ─────────
+-- role: admin = ดูแลทุกอย่าง · dev = ทีมพัฒนา (สิทธิ์เท่า admin) · staff = จัดการเนื้อหาเท่านั้น
 create table if not exists public.admins (
   email text primary key,
+  role text not null default 'admin',
   created_at timestamptz not null default now()
 );
+alter table public.admins add column if not exists role text not null default 'admin';
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'admins_role_check') then
+    alter table public.admins add constraint admins_role_check check (role in ('admin','staff','dev'));
+  end if;
+end $$;
 
 create or replace function public.is_admin()
 returns boolean
@@ -21,6 +29,30 @@ as $$
     select 1 from public.admins
     where lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
   );
+$$;
+
+-- ตำแหน่งของผู้ใช้ที่ล็อกอินอยู่ (null ถ้าไม่ใช่ผู้ดูแล)
+create or replace function public.admin_role()
+returns text
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select role from public.admins
+  where lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+  limit 1;
+$$;
+
+-- admin / dev เท่านั้นที่จัดการผู้ดูแลและตั้งค่าเว็บไซต์ได้ (staff จัดการเนื้อหาอย่างเดียว)
+create or replace function public.can_manage()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(public.admin_role() in ('admin','dev'), false);
 $$;
 
 -- ───────── helper: updated_at ─────────
@@ -183,13 +215,16 @@ alter table public.inquiries     enable row level security;
 
 -- admins: เฉพาะแอดมินเท่านั้น
 drop policy if exists admins_all on public.admins;
-create policy admins_all on public.admins for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists admins_read on public.admins;
+drop policy if exists admins_write on public.admins;
+create policy admins_read  on public.admins for select using (public.is_admin());
+create policy admins_write on public.admins for all using (public.can_manage()) with check (public.can_manage());
 
 -- site_settings: ทุกคนอ่านได้ / แอดมินแก้ได้
 drop policy if exists settings_read on public.site_settings;
 drop policy if exists settings_write on public.site_settings;
 create policy settings_read  on public.site_settings for select using (true);
-create policy settings_write on public.site_settings for all using (public.is_admin()) with check (public.is_admin());
+create policy settings_write on public.site_settings for all using (public.can_manage()) with check (public.can_manage());
 
 -- ตารางเนื้อหา: อ่านได้เฉพาะที่ published (แอดมินอ่านได้ทั้งหมด) / แอดมินเขียนได้
 do $$
@@ -217,8 +252,8 @@ grant insert on public.inquiries to anon, authenticated;
 grant all on all tables in schema public to authenticated;
 
 -- ───────── Seed ─────────
--- ⚠️ เพิ่มแอดมินคนแรก: เอา -- หน้าบรรทัดล่างออก แล้วเปลี่ยนเป็นอีเมล Google ของคุณ (หรือรันบรรทัดนี้แยกต่างหากทีหลังก็ได้)
--- insert into public.admins (email) values ('your-email@gmail.com') on conflict do nothing;
+-- ผู้ดูแลระบบ (เพิ่ม/แก้ตำแหน่งเพิ่มได้ที่หลังบ้าน เมนู ผู้ดูแลระบบ)
+insert into public.admins (email, role) values ('kunkorn.forwork@gmail.com', 'admin') on conflict (email) do nothing;
 
 insert into public.services (slug, title, subtitle, description, icon, features, sort_order) values
  ('event-organizer', 'Event Organizer', 'รับจัดงานอีเวนต์ครบวงจร',

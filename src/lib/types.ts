@@ -123,3 +123,22 @@ export type Inquiry = {
   status: "new" | "read" | "done";
   created_at: string;
 };
+
+// ───────── สิทธิ์ผู้ดูแลระบบ ─────────
+export const ROLES = ["admin", "dev", "staff"] as const;
+export type Role = (typeof ROLES)[number];
+
+export const ROLE_LABELS: Record<Role, string> = {
+  admin: "แอดมิน",
+  dev: "Dev",
+  staff: "Staff",
+};
+
+export function isRole(v: unknown): v is Role {
+  return typeof v === "string" && (ROLES as readonly string[]).includes(v);
+}
+
+/** admin / dev จัดการตั้งค่าเว็บและผู้ดูแลระบบได้ — staff จัดการเนื้อหาเท่านั้น */
+export function canManage(role: Role | null | undefined): boolean {
+  return role === "admin" || role === "dev";
+}

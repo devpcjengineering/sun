@@ -14,8 +14,9 @@ import {
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
+import { canManage, type Role } from "@/lib/types";
 
-type NavItem = { href: string; label: string; icon: LucideIcon; badge?: "unread"; kind?: "work" | "article" };
+type NavItem = { href: string; label: string; icon: LucideIcon; badge?: "unread"; kind?: "work" | "article"; manageOnly?: boolean };
 
 const NAV: NavItem[] = [
   { href: "/admin", label: "แดชบอร์ด", icon: LayoutDashboard },
@@ -26,17 +27,17 @@ const NAV: NavItem[] = [
   { href: "/admin/packages", label: "แพ็คเก็จ/ราคา", icon: Tags },
   { href: "/admin/testimonials", label: "เสียงลูกค้า", icon: MessageSquareQuote },
   { href: "/admin/inquiries", label: "ข้อความติดต่อ", icon: Inbox, badge: "unread" },
-  { href: "/admin/settings", label: "ตั้งค่าเว็บไซต์", icon: Settings },
-  { href: "/admin/admins", label: "ผู้ดูแลระบบ", icon: ShieldCheck },
+  { href: "/admin/settings", label: "ตั้งค่าเว็บไซต์", icon: Settings, manageOnly: true },
+  { href: "/admin/admins", label: "ผู้ดูแลระบบ", icon: ShieldCheck, manageOnly: true },
 ];
 
-export function SidebarNav({ unread, onNavigate }: { unread: number; onNavigate?: () => void }) {
+export function SidebarNav({ unread, role, onNavigate }: { unread: number; role: Role; onNavigate?: () => void }) {
   const pathname = usePathname();
   const kindParam = useSearchParams().get("kind");
 
   return (
     <nav aria-label="เมนูหลังบ้าน" className="space-y-1">
-      {NAV.map((item) => {
+      {NAV.filter((item) => !item.manageOnly || canManage(role)).map((item) => {
         const base = item.href.split("?")[0];
         const inPosts = pathname === base || pathname.startsWith(`${base}/`);
         const active =
