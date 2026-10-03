@@ -22,7 +22,6 @@ export default function WhyServices({ settings, services }: { settings: SiteSett
           {top.map((s, i) => (
             <Reveal key={s.id} delay={i * 100} className="h-full">
               <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-white p-8 transition duration-300 hover:-translate-y-1.5 hover:border-brand hover:shadow-xl hover:shadow-brand/10">
-                <span className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-brand transition-transform duration-500 group-hover:scale-x-100 motion-reduce:transition-none" aria-hidden="true" />
                 <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-ink text-white transition-colors duration-300 group-hover:bg-brand">
                   <ServiceIcon name={s.icon} className="h-7 w-7" />
                 </span>
