@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/admin/ui";
-import { EMPTY_POST, PostForm } from "@/components/admin/posts/PostForm";
+import { PostForm } from "@/components/admin/posts/PostForm";
+import { EMPTY_POST } from "@/components/admin/posts/helpers";
 import { createPost } from "../actions";
 
 export const metadata: Metadata = { title: "เพิ่มผลงาน/เขียนบทความ" };

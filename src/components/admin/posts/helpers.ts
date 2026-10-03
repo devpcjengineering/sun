@@ -1,4 +1,43 @@
 // helper ที่ใช้ได้ทั้ง client และ server (ไม่มี side-effect)
+import type { GalleryImage } from "@/lib/types";
+
+/** ค่าเริ่มต้นของฟอร์ม — ต้องอยู่ในไฟล์ที่ไม่ใช่ "use client" เพื่อให้หน้า server ใช้ spread ได้
+ *  (ถ้า export จากไฟล์ client ฝั่ง server จะได้แค่ตัวอ้างอิงเปล่า ทำให้ทุกฟิลด์เป็น undefined) */
+export type PostFormInitial = {
+  kind: string;
+  title: string;
+  slug: string;
+  category: string;
+  client_name: string;
+  excerpt: string;
+  content: string;
+  cover_url: string | null;
+  cover_public_id: string | null;
+  gallery: GalleryImage[];
+  video_url: string;
+  tags: string;
+  featured: boolean;
+  published: boolean;
+  published_at: string; // datetime-local (เวลาไทย) หรือ ""
+};
+
+export const EMPTY_POST: PostFormInitial = {
+  kind: "work",
+  title: "",
+  slug: "",
+  category: "event",
+  client_name: "",
+  excerpt: "",
+  content: "",
+  cover_url: null,
+  cover_public_id: null,
+  gallery: [],
+  video_url: "",
+  tags: "",
+  featured: false,
+  published: false,
+  published_at: "",
+};
 
 /** แปลงข้อความเป็น slug ภาษาอังกฤษ (ตัวอักษรไทยจะถูกตัดออก) */
 export function slugify(input: string): string {

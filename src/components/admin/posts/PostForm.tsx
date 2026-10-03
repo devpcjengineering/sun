@@ -8,44 +8,8 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { POST_CATEGORIES, POST_KINDS, type GalleryImage } from "@/lib/types";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { GalleryUpload } from "./GalleryUpload";
-import { fallbackSlug, slugify } from "./helpers";
+import { EMPTY_POST, fallbackSlug, slugify, type PostFormInitial } from "./helpers";
 import type { PostFormState } from "@/app/admin/(panel)/posts/actions";
-
-export type PostFormInitial = {
-  kind: string;
-  title: string;
-  slug: string;
-  category: string;
-  client_name: string;
-  excerpt: string;
-  content: string;
-  cover_url: string | null;
-  cover_public_id: string | null;
-  gallery: GalleryImage[];
-  video_url: string;
-  tags: string;
-  featured: boolean;
-  published: boolean;
-  published_at: string; // datetime-local (เวลาไทย) หรือ ""
-};
-
-export const EMPTY_POST: PostFormInitial = {
-  kind: "work",
-  title: "",
-  slug: "",
-  category: "event",
-  client_name: "",
-  excerpt: "",
-  content: "",
-  cover_url: null,
-  cover_public_id: null,
-  gallery: [],
-  video_url: "",
-  tags: "",
-  featured: false,
-  published: false,
-  published_at: "",
-};
 
 function FieldError({ msg }: { msg?: string }) {
   return msg ? (
