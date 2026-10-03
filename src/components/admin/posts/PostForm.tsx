@@ -5,13 +5,14 @@ import { AlertTriangle } from "lucide-react";
 import { Card, Field, btnGhost, inputCls } from "@/components/admin/ui";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { POST_CATEGORIES, type GalleryImage } from "@/lib/types";
+import { POST_CATEGORIES, POST_KINDS, type GalleryImage } from "@/lib/types";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { GalleryUpload } from "./GalleryUpload";
 import { fallbackSlug, slugify } from "./helpers";
 import type { PostFormState } from "@/app/admin/(panel)/posts/actions";
 
 export type PostFormInitial = {
+  kind: string;
   title: string;
   slug: string;
   category: string;
@@ -29,6 +30,7 @@ export type PostFormInitial = {
 };
 
 export const EMPTY_POST: PostFormInitial = {
+  kind: "work",
   title: "",
   slug: "",
   category: "event",
@@ -94,6 +96,9 @@ export function PostForm({
 }) {
   const [state, formAction] = useActionState(action, {} as PostFormState);
 
+  const [kind, setKind] = useState(initial.kind);
+  const isArticle = kind === "article";
+  const noun = isArticle ? "บทความ" : "ผลงาน";
   const [title, setTitle] = useState(initial.title);
   const [slug, setSlug] = useState(initial.slug);
   const [slugTouched, setSlugTouched] = useState(isEdit);
@@ -143,14 +148,14 @@ export function PostForm({
         <div className="space-y-6 lg:col-span-2">
           <Card className="space-y-5">
             <div>
-              <Field label="ชื่อโพสต์ *">
+              <Field label={`ชื่อ${noun} *`}>
                 <input
                   name="title"
                   required
                   maxLength={200}
                   value={title}
                   onChange={(e) => onTitle(e.target.value)}
-                  placeholder="เช่น งานประกวด Miss Sunnakhon 2025"
+                  placeholder={isArticle ? "เช่น 5 เคล็ดลับจัดอีเวนต์ให้ปัง" : "เช่น งานประกวด Miss Sunnakhon 2025"}
                   className={inputCls}
                 />
               </Field>
@@ -159,8 +164,8 @@ export function PostForm({
 
             <div>
               <Field
-                label="Slug (ลิงก์ของโพสต์)"
-                hint="ใช้ a-z 0-9 และ - เท่านั้น (เช่น miss-sunnakhon-2025) ปล่อยว่างให้ระบบสร้างให้อัตโนมัติ และต้องไม่ซ้ำกับโพสต์อื่น"
+                label={`Slug (ลิงก์ของ${noun})`}
+                hint="ใช้ a-z 0-9 และ - เท่านั้น (เช่น miss-sunnakhon-2025) ปล่อยว่างให้ระบบสร้างให้อัตโนมัติ และต้องไม่ซ้ำกับรายการอื่น"
               >
                 <input
                   name="slug"
@@ -202,19 +207,22 @@ export function PostForm({
           </Card>
 
           <Card className="space-y-5">
-            <h2 className="font-semibold text-ink">รูปภาพและวิดีโอ</h2>
+            <h2 className="font-semibold text-ink">{isArticle ? "รูปปก" : "รูปภาพและวิดีโอ"}</h2>
             <div className="max-w-xl">
               <ImageUpload folder="posts" name="cover" label="รูปปก" value={cover} onChange={setCover} />
               <FieldError msg={fe.cover_url} />
             </div>
 
+            {!isArticle && (
             <div className="space-y-2">
               <p className="text-sm font-medium text-ink">แกลเลอรี ({gallery.length} รูป)</p>
               <GalleryUpload value={gallery} onChange={setGallery} />
               <input type="hidden" name="gallery" value={JSON.stringify(gallery)} />
               <FieldError msg={fe.gallery} />
             </div>
+            )}
 
+            {!isArticle && (
             <div>
               <Field label="ลิงก์วิดีโอ YouTube" hint="เช่น https://www.youtube.com/watch?v=... หรือ https://youtu.be/...">
                 <input
@@ -228,6 +236,7 @@ export function PostForm({
               </Field>
               <FieldError msg={fe.video_url} />
             </div>
+            )}
           </Card>
         </div>
 
@@ -242,7 +251,7 @@ export function PostForm({
               title="เผยแพร่"
               desc="ปิดไว้ = ฉบับร่าง (ไม่แสดงบนเว็บไซต์)"
             />
-            <Check name="featured" checked={featured} onChange={setFeatured} title="โพสต์แนะนำ ★" desc="แสดงเด่นในหน้าแรก" />
+            <Check name="featured" checked={featured} onChange={setFeatured} title={`${noun}แนะนำ ★`} desc="แสดงเด่นในหน้าแรก" />
             <div>
               <Field label="วันที่เผยแพร่ (เวลาไทย)" hint="เว้นว่างไว้ = ตั้งเป็นเวลาปัจจุบันตอนเผยแพร่ครั้งแรก">
                 <input
@@ -256,8 +265,8 @@ export function PostForm({
               <FieldError msg={fe.published_at} />
             </div>
             <div className="flex flex-wrap gap-2 border-t border-line pt-4">
-              <SubmitButton>{isEdit ? "บันทึกการแก้ไข" : "สร้างโพสต์"}</SubmitButton>
-              <Link href="/admin/posts" className={btnGhost}>
+              <SubmitButton>{isEdit ? "บันทึกการแก้ไข" : `สร้าง${noun}`}</SubmitButton>
+              <Link href={`/admin/posts?kind=${kind}`} className={btnGhost}>
                 ยกเลิก
               </Link>
             </div>
@@ -265,6 +274,19 @@ export function PostForm({
 
           <Card className="space-y-4">
             <h2 className="font-semibold text-ink">รายละเอียด</h2>
+            <div>
+              <Field label="ประเภท">
+                <select name="kind" value={kind} onChange={(e) => setKind(e.target.value)} className={inputCls}>
+                  {POST_KINDS.map((k) => (
+                    <option key={k.value} value={k.value}>
+                      {k.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <FieldError msg={fe.kind} />
+            </div>
+            {!isArticle && (
             <div>
               <Field label="หมวดหมู่">
                 <select name="category" value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls}>
@@ -277,6 +299,8 @@ export function PostForm({
               </Field>
               <FieldError msg={fe.category} />
             </div>
+            )}
+            {!isArticle && (
             <div>
               <Field label="ชื่อลูกค้า / งาน">
                 <input
@@ -289,6 +313,7 @@ export function PostForm({
               </Field>
               <FieldError msg={fe.client_name} />
             </div>
+            )}
             <div>
               <Field label="แท็ก" hint="คั่นด้วยเครื่องหมายจุลภาค เช่น คอนเสิร์ต, งานนักศึกษา">
                 <input name="tags" value={tags} onChange={(e) => setTags(e.target.value)} className={inputCls} />

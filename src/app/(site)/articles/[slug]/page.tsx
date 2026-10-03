@@ -5,11 +5,11 @@ import { ArrowLeft, Calendar, Tag } from "lucide-react";
 import CtaBand from "@/components/site/CtaBand";
 import Gallery from "@/components/site/Gallery";
 import Markdown from "@/components/site/Markdown";
-import PostCard, { categoryLabel } from "@/components/site/PostCard";
-import { loadPost, loadPosts, loadSettings } from "@/components/site/safe-data";
+import PostCard from "@/components/site/PostCard";
+import { loadArticles, loadPost, loadSettings } from "@/components/site/safe-data";
 import SmartImage from "@/components/site/SmartImage";
-import { Container, SectionHeading } from "@/components/site/ui";
-import { formatThaiDate, youtubeEmbed } from "@/components/site/utils";
+import { ButtonLink, Container, SectionHeading } from "@/components/site/ui";
+import { formatThaiDate, siteUrl } from "@/components/site/utils";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -24,33 +24,46 @@ function decode(slug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await loadPost(decode(slug));
-  if (!post) return { title: "ไม่พบผลงาน" };
-  if (post.kind === "article") return { title: post.title, alternates: { canonical: `/articles/${post.slug}` } };
+  if (!post) return { title: "ไม่พบบทความ" };
+  if (post.kind !== "article") return { title: post.title, alternates: { canonical: `/portfolio/${post.slug}` } };
   const description = post.excerpt ?? undefined;
   return {
     title: post.title,
     description,
-    alternates: { canonical: `/portfolio/${post.slug}` },
+    alternates: { canonical: `/articles/${post.slug}` },
     openGraph: {
       title: post.title,
       description,
       type: "article",
       locale: "th_TH",
+      publishedTime: post.published_at ?? undefined,
       images: post.cover_url ? [{ url: post.cover_url }] : undefined,
+    },
+    twitter: {
+      card: post.cover_url ? "summary_large_image" : "summary",
+      title: post.title,
+      description,
+      images: post.cover_url ? [post.cover_url] : undefined,
     },
   };
 }
 
-export default async function PortfolioDetailPage({ params }: Props) {
+export default async function ArticleDetailPage({ params }: Props) {
   const { slug } = await params;
   const post = await loadPost(decode(slug));
   if (!post) notFound();
-  if (post.kind === "article") redirect(`/articles/${encodeURIComponent(post.slug)}`);
+  if (post.kind !== "article") redirect(`/portfolio/${encodeURIComponent(post.slug)}`);
 
-  const [settings, sameCategory] = await Promise.all([loadSettings(), loadPosts({ category: post.category, limit: 4 })]);
-  const related = sameCategory.filter((p) => p.id !== post.id).slice(0, 3);
-  const embed = youtubeEmbed(post.video_url);
+  const [settings, recent] = await Promise.all([loadSettings(), loadArticles({ limit: 4 })]);
+  const related = recent.filter((p) => p.id !== post.id).slice(0, 3);
   const gallery = Array.isArray(post.gallery) ? post.gallery.filter((g) => g?.url) : [];
+  const tags = Array.isArray(post.tags) ? post.tags : [];
+
+  const url = `${siteUrl()}/articles/${encodeURIComponent(post.slug)}`;
+  const shareLinks = [
+    { label: "แชร์ไปยัง Facebook", text: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}` },
+    { label: "แชร์ไปยัง LINE", text: "LINE", href: `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}` },
+  ];
 
   return (
     <>
@@ -58,40 +71,24 @@ export default async function PortfolioDetailPage({ params }: Props) {
         <header className="bg-ink text-white">
           <Container className="py-12 sm:py-20">
             <Link
-              href="/portfolio"
+              href="/articles"
               className="fade-up inline-flex items-center gap-2 text-sm text-white/70 transition-colors hover:text-white"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              กลับไปผลงานทั้งหมด
+              กลับไปบทความทั้งหมด
             </Link>
             <div className="fade-up mt-6 max-w-4xl">
-              <Link
-                href={`/portfolio?category=${post.category}`}
-                className="inline-block rounded-full bg-brand px-4 py-1 text-xs font-semibold text-white hover:bg-brand-dark"
-              >
-                {categoryLabel(post.category)}
-              </Link>
+              <span className="inline-block rounded-full bg-brand px-4 py-1 text-xs font-semibold text-white">บทความ</span>
               <h1 className="mt-4 text-3xl font-extrabold leading-tight tracking-tight [text-wrap:balance] sm:text-5xl">
                 {post.title}
               </h1>
               {post.excerpt && <p className="mt-5 text-base leading-relaxed text-white/70 sm:text-lg">{post.excerpt}</p>}
-              <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-white/70">
-                {post.client_name && (
-                  <div className="flex items-center gap-2">
-                    <dt className="text-white/50">ลูกค้า</dt>
-                    <dd className="font-semibold text-white">{post.client_name}</dd>
-                  </div>
-                )}
-                {post.published_at && (
-                  <div className="flex items-center gap-2">
-                    <dt className="sr-only">วันที่เผยแพร่</dt>
-                    <Calendar className="h-4 w-4" aria-hidden="true" />
-                    <dd>
-                      <time dateTime={post.published_at}>{formatThaiDate(post.published_at)}</time>
-                    </dd>
-                  </div>
-                )}
-              </dl>
+              {post.published_at && (
+                <p className="mt-6 flex items-center gap-2 text-sm text-white/70">
+                  <Calendar className="h-4 w-4" aria-hidden="true" />
+                  <time dateTime={post.published_at}>{formatThaiDate(post.published_at)}</time>
+                </p>
+              )}
             </div>
           </Container>
         </header>
@@ -110,32 +107,6 @@ export default async function PortfolioDetailPage({ params }: Props) {
               </div>
             )}
 
-            {embed && (
-              <div className="mt-10 aspect-video overflow-hidden rounded-3xl bg-ink">
-                <iframe
-                  src={embed}
-                  title={`วิดีโอ ${post.title}`}
-                  className="h-full w-full"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  referrerPolicy="strict-origin-when-cross-origin"
-                />
-              </div>
-            )}
-            {!embed && post.video_url && /^https?:\/\//i.test(post.video_url) && (
-              <p className="mt-8">
-                <a
-                  href={post.video_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-brand underline underline-offset-4"
-                >
-                  ดูวิดีโอ
-                </a>
-              </p>
-            )}
-
             {post.content && (
               <div className="mt-10 text-base sm:text-lg">
                 <Markdown source={post.content} />
@@ -151,9 +122,9 @@ export default async function PortfolioDetailPage({ params }: Props) {
               </section>
             )}
 
-            {post.tags.length > 0 && (
+            {tags.length > 0 && (
               <ul className="mt-12 flex flex-wrap gap-2 border-t border-line pt-6" aria-label="แท็ก">
-                {post.tags.map((t) => (
+                {tags.map((t) => (
                   <li key={t} className="inline-flex items-center gap-1.5 rounded-full bg-soft px-3 py-1 text-sm text-muted">
                     <Tag className="h-3.5 w-3.5" aria-hidden="true" />
                     {t}
@@ -161,6 +132,25 @@ export default async function PortfolioDetailPage({ params }: Props) {
                 ))}
               </ul>
             )}
+
+            <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-line pt-6">
+              <span className="text-sm font-semibold text-ink">แชร์บทความ</span>
+              {shareLinks.map((s) => (
+                <a
+                  key={s.text}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="rounded-full border border-line px-4 py-1.5 text-sm font-semibold text-ink transition-colors hover:border-brand hover:bg-brand hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                >
+                  {s.text}
+                </a>
+              ))}
+              <ButtonLink href="/articles" variant="outline" className="ml-auto !px-5 !py-2 !text-sm">
+                บทความทั้งหมด
+              </ButtonLink>
+            </div>
           </div>
         </Container>
       </article>
@@ -169,7 +159,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
         <section className="bg-soft py-16 sm:py-24" aria-labelledby="related-heading">
           <Container>
             <div id="related-heading">
-              <SectionHeading eyebrow="Related" title="ผลงานที่เกี่ยวข้อง" />
+              <SectionHeading eyebrow="Related" title="บทความที่เกี่ยวข้อง" />
             </div>
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((p) => (

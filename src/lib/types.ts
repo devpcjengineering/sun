@@ -52,8 +52,14 @@ export const POST_CATEGORIES = [
 
 export type GalleryImage = { url: string; public_id: string };
 
+export const POST_KINDS = [
+  { value: "work", label: "ผลงาน" },
+  { value: "article", label: "บทความ" },
+] as const;
+
 export type Post = {
   id: string;
+  kind: (typeof POST_KINDS)[number]["value"]; // work = ผลงาน, article = บทความ
   slug: string;
   title: string;
   excerpt: string | null;

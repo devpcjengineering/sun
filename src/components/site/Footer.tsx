@@ -45,7 +45,7 @@ export default function Footer({ settings, services }: { settings: SiteSettings;
         <nav aria-label="แผนผังเว็บไซต์">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-white/50">เมนู</h2>
           <ul className="mt-5 space-y-3">
-            {[...NAV_LINKS, { href: "/contact", label: "ติดต่อเรา" }].map((l) => (
+            {[...NAV_LINKS, { href: "/articles", label: "บทความ" }, { href: "/contact", label: "ติดต่อเรา" }].map((l) => (
               <li key={l.href}>
                 <Link href={l.href} className="text-white/80 transition-colors hover:text-brand">
                   {l.label}

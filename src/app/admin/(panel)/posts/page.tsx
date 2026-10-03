@@ -5,14 +5,14 @@ import { AlertTriangle, Eye, EyeOff, ImageOff, Pencil, Plus, Search, Star, Trash
 import { createClient } from "@/lib/supabase/server";
 import { Badge, btnGhost, btnPrimary, btnDark, EmptyState, inputCls, PageHeader } from "@/components/admin/ui";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
-import { POST_CATEGORIES, type Post } from "@/lib/types";
+import { POST_CATEGORIES, POST_KINDS, type Post } from "@/lib/types";
 import { deletePost, toggleFeatured, togglePublish } from "./actions";
 
-export const metadata: Metadata = { title: "โพสต์/ผลงาน" };
+export const metadata: Metadata = { title: "ผลงานและบทความ" };
 
 const PAGE_SIZE = 20;
 
-type SP = { q?: string; status?: string; category?: string; page?: string; error?: string };
+type SP = { kind?: string; q?: string; status?: string; category?: string; page?: string; error?: string };
 
 const categoryLabel = (v: string) => POST_CATEGORIES.find((c) => c.value === v)?.label ?? v;
 
@@ -22,7 +22,7 @@ const fmt = (iso: string) =>
 function href(sp: SP, patch: Partial<SP>) {
   const merged = { ...sp, ...patch };
   const p = new URLSearchParams();
-  for (const k of ["q", "status", "category", "page"] as const) {
+  for (const k of ["kind", "q", "status", "category", "page"] as const) {
     if (merged[k]) p.set(k, String(merged[k]));
   }
   const s = p.toString();
@@ -31,26 +31,45 @@ function href(sp: SP, patch: Partial<SP>) {
 
 export default async function PostsPage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
+  const kind = POST_KINDS.some((k) => k.value === sp.kind) ? (sp.kind as "work" | "article") : "";
   const q = (sp.q ?? "").trim().slice(0, 100);
   const status = sp.status === "published" || sp.status === "draft" ? sp.status : "";
-  const category = POST_CATEGORIES.some((c) => c.value === sp.category) ? (sp.category as string) : "";
+  const category =
+    kind !== "article" && POST_CATEGORIES.some((c) => c.value === sp.category) ? (sp.category as string) : "";
   const page = Math.max(1, Math.floor(Number(sp.page)) || 1);
 
   const supabase = await createClient();
   let query = supabase
     .from("posts")
-    .select("id, slug, title, category, cover_url, featured, published, published_at, created_at", { count: "exact" })
+    .select("id, kind, slug, title, category, cover_url, featured, published, published_at, created_at", { count: "exact" })
     .order("created_at", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
+  if (kind) query = query.eq("kind", kind);
   if (q) query = query.ilike("title", `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`);
   if (status) query = query.eq("published", status === "published");
   if (category) query = query.eq("category", category);
 
-  const { data, count, error } = await query;
+  const countOf = (k?: "work" | "article") => {
+    const c = supabase.from("posts").select("id", { count: "exact", head: true });
+    return k ? c.eq("kind", k) : c;
+  };
+  const [{ data, count, error }, allCount, workCount, articleCount] = await Promise.all([
+    query,
+    countOf(),
+    countOf("work"),
+    countOf("article"),
+  ]);
+  const tabs = [
+    { key: "", label: "ทั้งหมด", n: allCount.count ?? 0 },
+    { key: "work", label: "ผลงาน", n: workCount.count ?? 0 },
+    { key: "article", label: "บทความ", n: articleCount.count ?? 0 },
+  ];
+  const kindLabel = (v: string) => POST_KINDS.find((k) => k.value === v)?.label ?? v;
+  const noun = kind === "article" ? "บทความ" : kind === "work" ? "ผลงาน" : "รายการ";
   const posts = (data ?? []) as Pick<
     Post,
-    "id" | "slug" | "title" | "category" | "cover_url" | "featured" | "published" | "published_at" | "created_at"
+    "id" | "kind" | "slug" | "title" | "category" | "cover_url" | "featured" | "published" | "published_at" | "created_at"
   >[];
   const total = count ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -60,15 +79,41 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
   return (
     <>
       <PageHeader
-        title="โพสต์/ผลงาน"
+        title={kind === "article" ? "บทความ" : kind === "work" ? "ผลงาน" : "ผลงานและบทความ"}
         desc={`ทั้งหมด ${total} รายการ`}
         action={
-          <Link href="/admin/posts/new" className={btnPrimary}>
-            <Plus className="size-4" />
-            เขียนโพสต์ใหม่
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/posts/new?kind=work" className={kind === "article" ? btnDark : btnPrimary}>
+              <Plus className="size-4" />
+              เพิ่มผลงาน
+            </Link>
+            <Link href="/admin/posts/new?kind=article" className={kind === "article" ? btnPrimary : btnDark}>
+              <Plus className="size-4" />
+              เขียนบทความ
+            </Link>
+          </div>
         }
       />
+
+      <div role="tablist" aria-label="ประเภท" className="mb-4 flex flex-wrap gap-1 border-b border-line">
+        {tabs.map((t) => {
+          const active = kind === t.key;
+          return (
+            <Link
+              key={t.key || "all"}
+              role="tab"
+              aria-selected={active}
+              href={href({}, { kind: t.key })}
+              className={`-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm transition ${
+                active ? "border-brand font-medium text-ink" : "border-transparent text-muted hover:text-ink"
+              }`}
+            >
+              {t.label}
+              <span className="rounded-full bg-soft px-2 py-0.5 text-xs text-muted">{t.n}</span>
+            </Link>
+          );
+        })}
+      </div>
 
       {(errorMsg || error) && (
         <div role="alert" className="mb-4 flex items-start gap-2.5 rounded-xl border border-brand/20 bg-brand/5 px-4 py-3 text-sm text-brand">
@@ -78,13 +123,14 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
       )}
 
       <form method="get" action="/admin/posts" className="mb-4 flex flex-wrap items-center gap-2">
+        {kind && <input type="hidden" name="kind" value={kind} />}
         <div className="relative min-w-52 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" />
           <input
             name="q"
             defaultValue={q}
-            placeholder="ค้นหาจากชื่อโพสต์"
-            aria-label="ค้นหาจากชื่อโพสต์"
+            placeholder={`ค้นหาจากชื่อ${noun}`}
+            aria-label={`ค้นหาจากชื่อ${noun}`}
             className={`${inputCls} pl-9`}
           />
         </div>
@@ -93,19 +139,21 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
           <option value="published">เผยแพร่แล้ว</option>
           <option value="draft">ฉบับร่าง</option>
         </select>
-        <select name="category" defaultValue={category} aria-label="หมวดหมู่" className={`${inputCls} w-auto`}>
-          <option value="">ทุกหมวดหมู่</option>
-          {POST_CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
+        {kind !== "article" && (
+          <select name="category" defaultValue={category} aria-label="หมวดหมู่" className={`${inputCls} w-auto`}>
+            <option value="">ทุกหมวดหมู่</option>
+            {POST_CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        )}
         <button type="submit" className={btnDark}>
           ค้นหา
         </button>
         {filtered && (
-          <Link href="/admin/posts" className={btnGhost}>
+          <Link href={href({}, { kind })} className={btnGhost}>
             ล้างตัวกรอง
           </Link>
         )}
@@ -114,12 +162,15 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
       {posts.length === 0 ? (
         <EmptyState>
           {filtered ? (
-            "ไม่พบโพสต์ที่ตรงกับเงื่อนไข"
+            `ไม่พบ${noun}ที่ตรงกับเงื่อนไข`
           ) : (
             <>
-              ยังไม่มีโพสต์ —{" "}
-              <Link href="/admin/posts/new" className="font-medium text-brand hover:underline">
-                เขียนโพสต์แรกของคุณ
+              ยังไม่มี{noun} —{" "}
+              <Link
+                href={`/admin/posts/new?kind=${kind === "article" ? "article" : "work"}`}
+                className="font-medium text-brand hover:underline"
+              >
+                {kind === "article" ? "เขียนบทความแรกของคุณ" : "เพิ่มผลงานแรกของคุณ"}
               </Link>
             </>
           )}
@@ -127,10 +178,11 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
       ) : (
         <div className="overflow-hidden rounded-2xl border border-line bg-white">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
+            <table className="w-full min-w-[820px] text-left text-sm">
               <thead className="border-b border-line bg-soft/60 text-xs uppercase tracking-wide text-muted">
                 <tr>
-                  <th className="px-4 py-3 font-medium">โพสต์</th>
+                  <th className="px-4 py-3 font-medium">รายการ</th>
+                  <th className="px-4 py-3 font-medium">ประเภท</th>
                   <th className="px-4 py-3 font-medium">หมวดหมู่</th>
                   <th className="px-4 py-3 font-medium">สถานะ</th>
                   <th className="px-4 py-3 text-center font-medium">แนะนำ</th>
@@ -151,14 +203,17 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
                           )}
                         </div>
                         <div className="min-w-0">
-                          <Link href={`/admin/posts/${p.id}/edit`} className="line-clamp-1 font-medium text-ink hover:text-brand">
+                          <Link href={`/admin/posts/${p.id}/edit?kind=${p.kind ?? "work"}`} className="line-clamp-1 font-medium text-ink hover:text-brand">
                             {p.title}
                           </Link>
                           <p className="line-clamp-1 font-mono text-xs text-muted">{p.slug}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-muted">{categoryLabel(p.category)}</td>
+                    <td className="px-4 py-3">
+                      <Badge tone={p.kind === "article" ? "black" : "red"}>{kindLabel(p.kind ?? "work")}</Badge>
+                    </td>
+                    <td className="px-4 py-3 text-muted">{p.kind === "article" ? "–" : categoryLabel(p.category)}</td>
                     <td className="px-4 py-3">
                       <Badge tone={p.published ? "green" : "gray"}>{p.published ? "เผยแพร่แล้ว" : "ฉบับร่าง"}</Badge>
                     </td>
@@ -168,8 +223,8 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
                         <input type="hidden" name="featured" value={String(!p.featured)} />
                         <button
                           type="submit"
-                          aria-label={p.featured ? "เลิกเป็นโพสต์แนะนำ" : "ตั้งเป็นโพสต์แนะนำ"}
-                          title={p.featured ? "เลิกเป็นโพสต์แนะนำ" : "ตั้งเป็นโพสต์แนะนำ"}
+                          aria-label={p.featured ? "เลิกเป็นรายการแนะนำ" : "ตั้งเป็นรายการแนะนำ"}
+                          title={p.featured ? "เลิกเป็นรายการแนะนำ" : "ตั้งเป็นรายการแนะนำ"}
                           className="rounded-md p-1.5 hover:bg-soft"
                         >
                           <Star className={`size-4 ${p.featured ? "fill-brand text-brand" : "text-muted"}`} />
@@ -192,7 +247,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
                           </button>
                         </form>
                         <Link
-                          href={`/admin/posts/${p.id}/edit`}
+                          href={`/admin/posts/${p.id}/edit?kind=${p.kind ?? "work"}`}
                           title="แก้ไข"
                           aria-label="แก้ไข"
                           className="rounded-md p-2 text-muted transition hover:bg-soft hover:text-ink"
@@ -202,7 +257,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
                         <form action={deletePost}>
                           <input type="hidden" name="id" value={p.id} />
                           <ConfirmButton
-                            message={`ลบโพสต์ "${p.title}" ถาวร?`}
+                            message={`ลบ${kindLabel(p.kind ?? "work")} "${p.title}" ถาวร?`}
                             className="rounded-md p-2 text-muted transition hover:bg-brand/10 hover:text-brand"
                           >
                             <Trash2 className="size-4" />

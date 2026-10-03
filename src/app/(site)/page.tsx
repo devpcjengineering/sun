@@ -10,6 +10,7 @@ import Stats from "@/components/site/Stats";
 import Testimonials from "@/components/site/Testimonials";
 import WhyServices from "@/components/site/WhyServices";
 import {
+  loadArticles,
   loadClients,
   loadPackages,
   loadPosts,
@@ -30,11 +31,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [settings, services, clients, posts, testimonials, packages] = await Promise.all([
+  const [settings, services, clients, posts, articles, testimonials, packages] = await Promise.all([
     loadSettings(),
     loadServices(),
     loadClients(),
     loadPosts({ limit: 12 }),
+    loadArticles({ limit: 3 }),
     loadTestimonials(),
     loadPackages(),
   ]);
@@ -79,7 +81,29 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      <div className="bg-soft">
+      {articles.length > 0 && (
+        <section className="bg-soft py-20 sm:py-28" aria-labelledby="articles-heading">
+          <Container>
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+              <div id="articles-heading">
+                <SectionHeading eyebrow="Articles" title="บทความล่าสุด" text="เคล็ดลับและเรื่องราวจากทีม #teamsunnakhon" />
+              </div>
+              <ButtonLink href="/articles" variant="outline" arrow className="self-start sm:self-auto">
+                ดูบทความทั้งหมด
+              </ButtonLink>
+            </div>
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {articles.map((p, i) => (
+                <Reveal key={p.id} delay={(i % 3) * 100} className="h-full">
+                  <PostCard post={p} />
+                </Reveal>
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
+      <div className={articles.length > 0 ? "" : "bg-soft"}>
         <Process />
       </div>
 

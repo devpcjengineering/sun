@@ -4,12 +4,13 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient, getAdminUser } from "@/lib/supabase/server";
 import { deleteCloudinaryImages as destroyImages } from "@/lib/cloudinary-server";
-import { POST_CATEGORIES, type GalleryImage } from "@/lib/types";
+import { POST_CATEGORIES, POST_KINDS, type GalleryImage } from "@/lib/types";
 import { bangkokInputToIso, fallbackSlug, SLUG_RE, slugify } from "@/components/admin/posts/helpers";
 
 export type PostFormState = { error?: string; fieldErrors?: Record<string, string> };
 
 const CATEGORY_VALUES = POST_CATEGORIES.map((c) => c.value) as unknown as [string, ...string[]];
+const KIND_VALUES = POST_KINDS.map((k) => k.value) as unknown as [string, ...string[]];
 const YOUTUBE_RE = /^https:\/\/(www\.|m\.)?(youtube\.com|youtu\.be|youtube-nocookie\.com)\//i;
 
 const httpsUrl = z.string().trim().url("URL ไม่ถูกต้อง").refine((u) => u.startsWith("https://"), "ต้องเป็นลิงก์ https://");
@@ -17,6 +18,7 @@ const httpsUrl = z.string().trim().url("URL ไม่ถูกต้อง").ref
 const PostSchema = z.object({
   title: z.string().trim().min(1, "กรุณากรอกชื่อโพสต์").max(200, "ชื่อโพสต์ยาวเกินไป (สูงสุด 200 ตัวอักษร)"),
   slug: z.string().trim().toLowerCase().max(100, "slug ยาวเกินไป").refine((s) => s === "" || SLUG_RE.test(s), "slug ใช้ได้เฉพาะ a-z, 0-9 และเครื่องหมาย - (เช่น my-event-2025)"),
+  kind: z.enum(KIND_VALUES, "เลือกประเภทไม่ถูกต้อง"),
   category: z.enum(CATEGORY_VALUES, "เลือกหมวดหมู่ไม่ถูกต้อง"),
   client_name: z.string().trim().max(150, "ชื่อลูกค้ายาวเกินไป"),
   excerpt: z.string().trim().max(500, "คำโปรยยาวเกินไป (สูงสุด 500 ตัวอักษร)"),
@@ -62,6 +64,7 @@ function readForm(fd: FormData): { ok: true; data: Parsed } | { ok: false; state
   const parsed = PostSchema.safeParse({
     title: str(fd, "title"),
     slug: str(fd, "slug"),
+    kind: str(fd, "kind") || "work",
     category: str(fd, "category") || "event",
     client_name: str(fd, "client_name"),
     excerpt: str(fd, "excerpt"),
@@ -83,7 +86,15 @@ function readForm(fd: FormData): { ok: true; data: Parsed } | { ok: false; state
     }
     return { ok: false, state: { error: "กรุณาตรวจสอบข้อมูลที่กรอกอีกครั้ง", fieldErrors } };
   }
-  return { ok: true, data: { ...parsed.data, published_at_input: str(fd, "published_at") } };
+  const data = { ...parsed.data, published_at_input: str(fd, "published_at") };
+  // บทความไม่มีหมวดหมู่/ลูกค้า/แกลเลอรี/วิดีโอ
+  if (data.kind === "article") {
+    data.category = "other";
+    data.client_name = "";
+    data.video_url = "";
+    data.gallery = [];
+  }
+  return { ok: true, data };
 }
 
 async function slugTaken(slug: string, excludeId?: string) {
@@ -121,6 +132,7 @@ function toRow(data: Parsed, slug: string, publishedAt: string | null) {
   return {
     title: data.title,
     slug,
+    kind: data.kind,
     category: data.category,
     client_name: data.client_name || null,
     excerpt: data.excerpt || null,
@@ -152,7 +164,7 @@ export async function createPost(_prev: PostFormState, fd: FormData): Promise<Po
   if (error) return dbMessage(error);
 
   revalidatePath("/", "layout");
-  redirect("/admin/posts");
+  redirect(`/admin/posts?kind=${r.data.kind}`);
 }
 
 export async function updatePost(id: string, _prev: PostFormState, fd: FormData): Promise<PostFormState> {
@@ -188,7 +200,7 @@ export async function updatePost(id: string, _prev: PostFormState, fd: FormData)
   await destroyImages(old.filter((p) => p && !keep.has(p)));
 
   revalidatePath("/", "layout");
-  redirect("/admin/posts");
+  redirect(`/admin/posts?kind=${r.data.kind}`);
 }
 
 function failList(message: string): never {
@@ -239,5 +251,8 @@ export async function deletePost(fd: FormData) {
     ]);
   }
   revalidatePath("/", "layout");
-  if (str(fd, "from") === "edit") redirect("/admin/posts");
+  if (str(fd, "from") === "edit") {
+    const kind = str(fd, "kind");
+    redirect(kind === "work" || kind === "article" ? `/admin/posts?kind=${kind}` : "/admin/posts");
+  }
 }

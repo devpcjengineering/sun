@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard,
   FileText,
+  Newspaper,
   Building2,
   Sparkles,
   Tags,
@@ -14,11 +15,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-type NavItem = { href: string; label: string; icon: LucideIcon; badge?: "unread" };
+type NavItem = { href: string; label: string; icon: LucideIcon; badge?: "unread"; kind?: "work" | "article" };
 
 const NAV: NavItem[] = [
   { href: "/admin", label: "แดชบอร์ด", icon: LayoutDashboard },
-  { href: "/admin/posts", label: "โพสต์/ผลงาน", icon: FileText },
+  { href: "/admin/posts?kind=work", label: "ผลงาน", icon: FileText, kind: "work" },
+  { href: "/admin/posts?kind=article", label: "บทความ", icon: Newspaper, kind: "article" },
   { href: "/admin/clients", label: "ลูกค้าที่เคยร่วมงาน (โลโก้)", icon: Building2 },
   { href: "/admin/services", label: "บริการ", icon: Sparkles },
   { href: "/admin/packages", label: "แพ็คเก็จ/ราคา", icon: Tags },
@@ -30,11 +32,19 @@ const NAV: NavItem[] = [
 
 export function SidebarNav({ unread, onNavigate }: { unread: number; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const kindParam = useSearchParams().get("kind");
 
   return (
     <nav aria-label="เมนูหลังบ้าน" className="space-y-1">
       {NAV.map((item) => {
-        const active = item.href === "/admin" ? pathname === "/admin" : pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const base = item.href.split("?")[0];
+        const inPosts = pathname === base || pathname.startsWith(`${base}/`);
+        const active =
+          item.href === "/admin"
+            ? pathname === "/admin"
+            : item.kind
+              ? inPosts && (kindParam === item.kind || (kindParam !== "article" && kindParam !== "work" && item.kind === "work"))
+              : inPosts;
         const Icon = item.icon;
         const count = item.badge === "unread" ? unread : 0;
         return (

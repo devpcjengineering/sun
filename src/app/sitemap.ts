@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { loadPosts } from "@/components/site/safe-data";
+import { loadArticles, loadPosts } from "@/components/site/safe-data";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +15,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/contact`, changeFrequency: "yearly", priority: 0.6, lastModified: now },
   ];
 
-  const posts = await loadPosts();
+  const [posts, articles] = await Promise.all([loadPosts(), loadArticles()]);
   return [
     ...pages,
+    { url: `${base}/articles`, changeFrequency: "weekly" as const, priority: 0.7, lastModified: now },
+    ...articles.map((p) => ({
+      url: `${base}/articles/${encodeURIComponent(p.slug)}`,
+      lastModified: p.updated_at ? new Date(p.updated_at) : now,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    })),
     ...posts.map((p) => ({
       url: `${base}/portfolio/${encodeURIComponent(p.slug)}`,
       lastModified: p.updated_at ? new Date(p.updated_at) : now,

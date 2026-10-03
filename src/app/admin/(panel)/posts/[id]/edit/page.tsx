@@ -10,7 +10,7 @@ import { isoToBangkokInput } from "@/components/admin/posts/helpers";
 import type { Post } from "@/lib/types";
 import { deletePost, updatePost } from "../../actions";
 
-export const metadata: Metadata = { title: "แก้ไขโพสต์" };
+export const metadata: Metadata = { title: "แก้ไขผลงาน/บทความ" };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -24,7 +24,11 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   if (!data) notFound();
   const post = data as Post;
 
+  const kind = post.kind === "article" ? "article" : "work";
+  const noun = kind === "article" ? "บทความ" : "ผลงาน";
+
   const initial: PostFormInitial = {
+    kind,
     title: post.title,
     slug: post.slug,
     category: post.category,
@@ -43,25 +47,29 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 
   return (
     <>
-      <Link href="/admin/posts" className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink">
+      <Link
+        href={`/admin/posts?kind=${kind}`}
+        className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"
+      >
         <ArrowLeft className="size-4" />
-        กลับไปรายการโพสต์
+        กลับไปรายการ{noun}
       </Link>
-      <PageHeader title="แก้ไขโพสต์" desc={post.title} />
+      <PageHeader title={`แก้ไข${noun}`} desc={post.title} />
       <PostForm key={post.id} action={updatePost.bind(null, post.id)} initial={initial} isEdit />
 
       <Card className="mt-6 border-brand/30">
-        <h2 className="font-semibold text-brand">ลบโพสต์</h2>
+        <h2 className="font-semibold text-brand">ลบ{noun}</h2>
         <p className="mt-1 text-sm text-muted">การลบจะลบรูปปกและแกลเลอรีบน Cloudinary ด้วย และไม่สามารถย้อนกลับได้</p>
         <form action={deletePost} className="mt-4">
           <input type="hidden" name="id" value={post.id} />
           <input type="hidden" name="from" value="edit" />
+          <input type="hidden" name="kind" value={kind} />
           <ConfirmButton
-            message={`ลบโพสต์ "${post.title}" ถาวร?`}
+            message={`ลบ${noun} "${post.title}" ถาวร?`}
             className="inline-flex items-center gap-2 rounded-lg border border-brand px-4 py-2.5 text-sm font-medium text-brand transition hover:bg-brand hover:text-white"
           >
             <Trash2 className="size-4" />
-            ลบโพสต์นี้
+            ลบ{noun}นี้
           </ConfirmButton>
         </form>
       </Card>

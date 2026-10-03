@@ -135,6 +135,10 @@ export async function loadServices(): Promise<Service[]> {
 export const loadClients = (): Promise<Client[]> => safe(() => getClients(), []);
 export const loadPackages = (): Promise<Package[]> => safe(() => getPackages(), []);
 export const loadTestimonials = (): Promise<Testimonial[]> => safe(() => getTestimonials(), []);
+/** ผลงาน (kind = work) เท่านั้น */
 export const loadPosts = (opts: { category?: string; limit?: number; featured?: boolean } = {}): Promise<Post[]> =>
-  safe(() => getPosts(opts), []);
+  safe(() => getPosts({ ...opts, kind: "work" }), []);
+/** บทความ (kind = article) เท่านั้น */
+export const loadArticles = (opts: { limit?: number; featured?: boolean } = {}): Promise<Post[]> =>
+  safe(() => getPosts({ ...opts, kind: "article" }), []);
 export const loadPost = (slug: string): Promise<Post | null> => safe(() => getPost(slug), null);

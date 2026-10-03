@@ -8,6 +8,7 @@ import {
   Circle,
   FileText,
   FilePen,
+  Newspaper,
   Inbox,
   Plus,
   Sparkles,
@@ -84,7 +85,9 @@ export default async function DashboardPage() {
 
   const head = (table: string) => supabase.from(table).select("id", { count: "exact", head: true });
 
-  const [published, drafts, clients, unread, latest] = await Promise.all([
+  const [works, articles, published, drafts, clients, unread, latest] = await Promise.all([
+    head("posts").eq("kind", "work").eq("published", true),
+    head("posts").eq("kind", "article").eq("published", true),
     head("posts").eq("published", true),
     head("posts").eq("published", false),
     head("clients"),
@@ -92,7 +95,7 @@ export default async function DashboardPage() {
     supabase.from("inquiries").select("*").order("created_at", { ascending: false }).limit(5),
   ]);
 
-  const dbError = [published, drafts, clients, unread, latest].find((r) => r.error)?.error;
+  const dbError = [works, articles, published, drafts, clients, unread, latest].find((r) => r.error)?.error;
   const inquiries = (latest.data ?? []) as Inquiry[];
 
   // ตรวจ env แบบปลอดภัย: บอกแค่ว่า "มี/ไม่มี" ไม่เปิดเผยค่า
@@ -115,7 +118,7 @@ export default async function DashboardPage() {
       title: "กำหนด URL ของเว็บไซต์ (สำหรับ sitemap / OG)",
       hint: "เพิ่ม NEXT_PUBLIC_SITE_URL เช่น https://www.example.com",
     },
-    { ok: hasPost, title: "มีโพสต์ที่เผยแพร่แล้วอย่างน้อย 1 รายการ", hint: "ไปที่เมนู โพสต์/ผลงาน แล้วกด เขียนโพสต์ใหม่" },
+    { ok: hasPost, title: "มีผลงานหรือบทความที่เผยแพร่แล้วอย่างน้อย 1 รายการ", hint: "ไปที่เมนู ผลงาน หรือ บทความ แล้วกดเพิ่มรายการใหม่" },
     { ok: hasClient, title: "เพิ่มโลโก้ลูกค้าอย่างน้อย 1 รายการ", hint: "ไปที่เมนู ลูกค้าที่เคยร่วมงาน (โลโก้)" },
   ];
   const doneCount = checklist.filter((c) => c.ok).length;
@@ -127,11 +130,15 @@ export default async function DashboardPage() {
         desc="ภาพรวมเว็บไซต์ SUNNAKHON GROUP"
         action={
           <div className="flex flex-wrap gap-2">
-            <Link href="/admin/posts/new" className={btnPrimary}>
+            <Link href="/admin/posts/new?kind=work" className={btnPrimary}>
               <Plus className="size-4" />
-              เขียนโพสต์ใหม่
+              เพิ่มผลงาน
             </Link>
-            <Link href="/admin/clients" className={btnDark}>
+            <Link href="/admin/posts/new?kind=article" className={btnDark}>
+              <Newspaper className="size-4" />
+              เขียนบทความ
+            </Link>
+            <Link href="/admin/clients" className={btnGhost}>
               <Building2 className="size-4" />
               เพิ่มโลโก้ลูกค้า
             </Link>
@@ -146,9 +153,10 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="โพสต์ที่เผยแพร่" value={dbError ? null : (published.count ?? 0)} icon={FileText} href="/admin/posts?status=published" />
-        <StatCard label="โพสต์ฉบับร่าง" value={dbError ? null : (drafts.count ?? 0)} icon={FilePen} href="/admin/posts?status=draft" />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <StatCard label="ผลงานที่เผยแพร่" value={dbError ? null : (works.count ?? 0)} icon={FileText} href="/admin/posts?kind=work&status=published" />
+        <StatCard label="บทความที่เผยแพร่" value={dbError ? null : (articles.count ?? 0)} icon={Newspaper} href="/admin/posts?kind=article&status=published" />
+        <StatCard label="ฉบับร่าง (ผลงาน+บทความ)" value={dbError ? null : (drafts.count ?? 0)} icon={FilePen} href="/admin/posts?status=draft" />
         <StatCard label="ลูกค้า/โลโก้" value={dbError ? null : (clients.count ?? 0)} icon={Building2} href="/admin/clients" />
         <StatCard label="ข้อความที่ยังไม่อ่าน" value={dbError ? null : (unread.count ?? 0)} icon={Inbox} href="/admin/inquiries" tone="red" />
       </div>
@@ -219,7 +227,7 @@ export default async function DashboardPage() {
                 Deploy:{" "}
                 <code className="rounded bg-soft px-1">supabase functions deploy cloudinary-sign cloudinary-delete</code>
               </li>
-              <li>ลองอัปโหลดรูปปกในหน้า เขียนโพสต์ใหม่ เพื่อทดสอบ</li>
+              <li>ลองอัปโหลดรูปปกในหน้า เพิ่มผลงาน/เขียนบทความ เพื่อทดสอบ</li>
             </ol>
           </Card>
 

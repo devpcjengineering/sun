@@ -79,6 +79,7 @@ create table if not exists public.services (
 -- ───────── posts (ผลงานของเรา / โพสต์) ─────────
 create table if not exists public.posts (
   id uuid primary key default gen_random_uuid(),
+  kind text not null default 'work' check (kind in ('work','article')), -- work = ผลงาน, article = บทความ
   slug text unique not null,
   title text not null,
   excerpt text,
@@ -96,7 +97,15 @@ create table if not exists public.posts (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+-- สำหรับฐานข้อมูลที่สร้างตารางไว้ก่อนมีคอลัมน์ kind
+alter table public.posts add column if not exists kind text not null default 'work';
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'posts_kind_check') then
+    alter table public.posts add constraint posts_kind_check check (kind in ('work','article'));
+  end if;
+end $$;
 create index if not exists posts_pub_idx on public.posts (published, published_at desc);
+create index if not exists posts_kind_idx on public.posts (kind, published, published_at desc);
 
 -- ───────── clients (ลูกค้าที่เคยร่วมงาน / โลโก้วิ่ง) ─────────
 create table if not exists public.clients (
@@ -208,8 +217,8 @@ grant insert on public.inquiries to anon, authenticated;
 grant all on all tables in schema public to authenticated;
 
 -- ───────── Seed ─────────
--- ⚠️ เปลี่ยนเป็นอีเมล Google ของแอดมินคนแรก
-insert into public.admins (email) values ('YOUR_EMAIL@gmail.com') on conflict do nothing;
+-- ⚠️ เพิ่มแอดมินคนแรก: เอา -- หน้าบรรทัดล่างออก แล้วเปลี่ยนเป็นอีเมล Google ของคุณ (หรือรันบรรทัดนี้แยกต่างหากทีหลังก็ได้)
+-- insert into public.admins (email) values ('your-email@gmail.com') on conflict do nothing;
 
 insert into public.services (slug, title, subtitle, description, icon, features, sort_order) values
  ('event-organizer', 'Event Organizer', 'รับจัดงานอีเวนต์ครบวงจร',

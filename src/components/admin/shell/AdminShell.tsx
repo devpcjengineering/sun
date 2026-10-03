@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ExternalLink, LogOut, Menu, X } from "lucide-react";
 import { SidebarNav } from "./SidebarNav";
@@ -77,7 +77,9 @@ export function AdminShell({
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-4">
-          <SidebarNav unread={unread} onNavigate={() => setOpen(false)} />
+          <Suspense fallback={null}>
+            <SidebarNav unread={unread} onNavigate={() => setOpen(false)} />
+          </Suspense>
         </div>
         <div className="shrink-0 border-t border-white/10 p-4 text-xs text-white/40">
           <p>SUNNAKHON GROUP</p>

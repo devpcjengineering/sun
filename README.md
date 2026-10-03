@@ -6,7 +6,8 @@ Next.js 16 (App Router) · Tailwind v4 · Supabase (Google login + Postgres) · 
 
 ### 1) Supabase
 1. สร้างโปรเจกต์ที่ https://supabase.com
-2. **SQL Editor** → เปิดไฟล์ `supabase/schema.sql` → แก้ `YOUR_EMAIL@gmail.com` เป็นอีเมล Google ของแอดมินคนแรก → กด **Run**
+2. **SQL Editor** → วางไฟล์ `supabase/schema.sql` ทั้งไฟล์ → กด **Run** (รันซ้ำได้) แล้วรันอีกบรรทัดเพื่อเพิ่มแอดมินคนแรก:
+   `insert into public.admins (email) values ('อีเมล-google-ของคุณ') on conflict do nothing;`
 3. **Authentication → Providers → Google** → เปิดใช้งาน แล้วใส่ Client ID / Secret
    - สร้างที่ Google Cloud Console → APIs & Services → Credentials → OAuth client (Web)
    - Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`

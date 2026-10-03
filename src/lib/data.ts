@@ -34,9 +34,12 @@ export async function getTestimonials(): Promise<Testimonial[]> {
   return (data ?? []) as Testimonial[];
 }
 
-export async function getPosts(opts: { category?: string; limit?: number; featured?: boolean } = {}): Promise<Post[]> {
+export async function getPosts(
+  opts: { kind?: Post["kind"]; category?: string; limit?: number; featured?: boolean } = {},
+): Promise<Post[]> {
   const sb = await createClient();
   let q = sb.from("posts").select("*").eq("published", true).order("published_at", { ascending: false });
+  if (opts.kind) q = q.eq("kind", opts.kind);
   if (opts.category) q = q.eq("category", opts.category);
   if (opts.featured) q = q.eq("featured", true);
   if (opts.limit) q = q.limit(opts.limit);
