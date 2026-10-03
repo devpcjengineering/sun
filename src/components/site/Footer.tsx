@@ -113,7 +113,7 @@ export default function Footer({ settings, services }: { settings: SiteSettings;
         </div>
       </Container>
       <div className="border-t border-white/10">
-        <Container className="flex flex-col items-center gap-2 pt-6 text-center text-sm text-white/65 sm:flex-row sm:justify-between sm:pb-24 sm:text-left">
+        <Container className="flex flex-col items-center gap-2 pt-6 text-center text-sm text-white/65 sm:flex-row sm:justify-between sm:pb-6 sm:pr-20 sm:text-left">
           <p>© 2026 Sunnakhon Group. All Rights Reserved.</p>
           <p className="flex items-center gap-4">
             {/* เดสก์ท็อป: อยู่หน้า #teamsunnakhon */}
@@ -124,7 +124,7 @@ export default function Footer({ settings, services }: { settings: SiteSettings;
           </p>
         </Container>
         {/* มือถือ: ล่างสุดของหน้า กึ่งกลาง */}
-        <Container className="flex justify-center pb-24 pt-3 text-sm text-white/70 sm:hidden">
+        <Container className="flex justify-center pb-6 pt-3 text-sm text-white/70 sm:hidden">
           <a href="/admin" className="transition-colors hover:text-white">
             เข้าสู่ระบบหลังบ้าน
           </a>
