@@ -13,6 +13,7 @@ import {
   optText,
   revalidateSite,
 } from "@/components/admin/content/crud";
+import { ICON_VALUES } from "@/components/admin/content/icons";
 
 const text = (max: number) => z.string().trim().max(max, `ยาวเกิน ${max} ตัวอักษร`);
 const link = z
@@ -39,6 +40,22 @@ const schema = z.object({
       }),
     )
     .max(8, "เพิ่มสถิติได้ไม่เกิน 8 รายการ"),
+
+  band_eyebrow: text(100),
+  band_title: text(200),
+  band_text: text(1000),
+  ticker_items: z
+    .array(z.string().trim().min(1).max(40, "แต่ละรายการยาวได้ไม่เกิน 40 ตัวอักษร"))
+    .max(12, "ข้อความวิ่งใส่ได้ไม่เกิน 12 รายการ"),
+  capabilities: z
+    .array(
+      z.object({
+        icon: z.enum(ICON_VALUES, "ไอคอนไม่ถูกต้อง"),
+        title: text(60).min(1, "การ์ดแต่ละใบต้องมีหัวข้อ"),
+        text: text(300),
+      }),
+    )
+    .max(6, "เพิ่มการ์ดได้ไม่เกิน 6 ใบ"),
 
   cta_title: text(200),
   cta_text: text(500),
@@ -72,6 +89,11 @@ const LABELS: Record<string, string> = {
   why_title: "ทำไมต้องเรา · หัวข้อ",
   why_text: "ทำไมต้องเรา · ข้อความ",
   stats: "สถิติ",
+  band_eyebrow: "แถบเด่นหน้าแรก · ข้อความเล็กด้านบน",
+  band_title: "แถบเด่นหน้าแรก · หัวข้อ",
+  band_text: "แถบเด่นหน้าแรก · ข้อความ",
+  ticker_items: "แถบเด่นหน้าแรก · ข้อความวิ่ง",
+  capabilities: "แถบเด่นหน้าแรก · การ์ดความสามารถ",
   cta_title: "CTA · หัวข้อ",
   cta_text: "CTA · ข้อความ",
   phone: "ติดต่อ · เบอร์โทร",
@@ -99,6 +121,18 @@ export async function saveSettings(_prev: ActionState, fd: FormData): Promise<Ac
     .map((value, i) => ({ value, label: labels[i] ?? "" }))
     .filter((s) => s.value.trim() !== "" || s.label.trim() !== "");
 
+  const strs = (name: string) => fd.getAll(name).map((v) => (typeof v === "string" ? v : ""));
+  const ticker_items = field(fd, "ticker_items")
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const capIcons = strs("cap_icon");
+  const capTitles = strs("cap_title");
+  const capTexts = strs("cap_text");
+  const capabilities = capTitles
+    .map((title, i) => ({ icon: capIcons[i] ?? "", title, text: capTexts[i] ?? "" }))
+    .filter((c) => c.title.trim() !== "" || c.text.trim() !== "");
+
   const parsed = schema.safeParse({
     hero_eyebrow: field(fd, "hero_eyebrow"),
     hero_title: field(fd, "hero_title"),
@@ -108,6 +142,11 @@ export async function saveSettings(_prev: ActionState, fd: FormData): Promise<Ac
     why_title: field(fd, "why_title"),
     why_text: field(fd, "why_text"),
     stats,
+    band_eyebrow: field(fd, "band_eyebrow"),
+    band_title: field(fd, "band_title"),
+    band_text: field(fd, "band_text"),
+    ticker_items,
+    capabilities,
     cta_title: field(fd, "cta_title"),
     cta_text: field(fd, "cta_text"),
     phone: field(fd, "phone"),

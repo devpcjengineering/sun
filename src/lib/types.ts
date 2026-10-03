@@ -11,6 +11,12 @@ export type SiteSettings = {
   why_title: string;
   why_text: string;
   stats: { value: string; label: string }[];
+  // แถบสีดำหน้าแรก (Why Us)
+  band_eyebrow: string;
+  band_title: string;
+  band_text: string;
+  ticker_items: string[];
+  capabilities: { icon: string; title: string; text: string }[];
   cta_title: string;
   cta_text: string;
   phone: string;

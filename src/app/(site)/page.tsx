@@ -51,7 +51,14 @@ export default async function HomePage() {
       <Hero settings={settings} />
       <WhyServices settings={settings} services={services} />
       <ClientMarquee clients={clients} />
-      <Stats stats={settings.stats} />
+      <Stats
+        stats={settings.stats}
+        band_eyebrow={settings.band_eyebrow}
+        band_title={settings.band_title}
+        band_text={settings.band_text}
+        ticker_items={settings.ticker_items}
+        capabilities={settings.capabilities}
+      />
 
       <section className="py-20 sm:py-28" aria-labelledby="latest-heading">
         <Container>

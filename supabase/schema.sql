@@ -91,6 +91,19 @@ create table if not exists public.site_settings (
 );
 insert into public.site_settings (id) values (1) on conflict do nothing;
 
+-- แถบสีดำหน้าแรก (Why Us): หัวข้อ/ข้อความ/ตัวอักษรวิ่ง/การ์ดความสามารถ แก้ได้จากหลังบ้าน
+alter table public.site_settings add column if not exists band_eyebrow text not null default 'Why Us';
+alter table public.site_settings add column if not exists band_title text not null default '#teamsunnakhon ทำได้ทุกอย่าง';
+alter table public.site_settings add column if not exists band_text text not null default 'เราไม่ใช่แค่ออแกไนเซอร์ แต่คือพาร์ทเนอร์ที่พร้อมเนรมิตทุกไอเดียของคุณให้เกิดขึ้นจริง จบครบในที่เดียว';
+alter table public.site_settings add column if not exists ticker_items text[] not null
+  default array['EVENT','LIVE COMMERCE','VIDEO PRODUCTION','GRAPHIC & MOTION','#TEAMSUNNAKHON'];
+alter table public.site_settings add column if not exists capabilities jsonb not null default '[
+  {"icon":"mic","title":"Event Organizer","text":"ประกวด คอนเสิร์ต งานนักศึกษา"},
+  {"icon":"smartphone","title":"Live Commerce","text":"ไลฟ์สดขายสินค้าให้ปัง"},
+  {"icon":"clapperboard","title":"Video Production","text":"ถ่ายทำ ตัดต่อ ทุกรูปแบบ"},
+  {"icon":"palette","title":"Graphic & Motion","text":"ดีไซน์ที่สะกดทุกสายตา"}
+]'::jsonb;
+
 -- ───────── services (บริการของเรา) ─────────
 create table if not exists public.services (
   id uuid primary key default gen_random_uuid(),

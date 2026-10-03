@@ -27,6 +27,16 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   why_text:
     "\"เพราะความต้องการของคุณ #teamsunnakhon ทำได้ทุกอย่าง\" เราไม่ใช่แค่ออแกไนเซอร์ แต่เราคือ 'พาร์ทเนอร์' ที่พร้อมเนรมิตทุกไอเดียของคุณให้เกิดขึ้นจริง ด้วยประสบการณ์ 4 ปี เราเข้าใจทุกมิติของการจัดงาน ทั้งอีเวนต์ออฟไลน์ ไลฟ์สด วิดีโอโปรดักชัน และงานออกแบบ... ให้เราดูแลจบ ครบในที่เดียว",
   stats: [{ value: "4+", label: "ปีประสบการณ์" }],
+  band_eyebrow: "Why Us",
+  band_title: "#teamsunnakhon ทำได้ทุกอย่าง",
+  band_text: "เราไม่ใช่แค่ออแกไนเซอร์ แต่คือพาร์ทเนอร์ที่พร้อมเนรมิตทุกไอเดียของคุณให้เกิดขึ้นจริง จบครบในที่เดียว",
+  ticker_items: ["EVENT", "LIVE COMMERCE", "VIDEO PRODUCTION", "GRAPHIC & MOTION", "#TEAMSUNNAKHON"],
+  capabilities: [
+    { icon: "mic", title: "Event Organizer", text: "ประกวด คอนเสิร์ต งานนักศึกษา" },
+    { icon: "smartphone", title: "Live Commerce", text: "ไลฟ์สดขายสินค้าให้ปัง" },
+    { icon: "clapperboard", title: "Video Production", text: "ถ่ายทำ ตัดต่อ ทุกรูปแบบ" },
+    { icon: "palette", title: "Graphic & Motion", text: "ดีไซน์ที่สะกดทุกสายตา" },
+  ],
   cta_title: "พร้อมให้เราเนรมิตงานของคุณหรือยัง?",
   cta_text: "ทักมาคุยไอเดียกับทีมงานได้เลย ปรึกษาฟรี",
   phone: "08-3974-4566",

@@ -104,7 +104,7 @@ export default async function ContactPage() {
             <div className="flex flex-wrap gap-3 pt-4">
               <ButtonLink href={telHref(settings.phone)}>โทรเลย</ButtonLink>
               <ButtonLink href={lineHref(settings)} variant="dark">
-                แอด LINE
+                LINE
               </ButtonLink>
               <ButtonLink href={settings.facebook_url} variant="outline">
                 Facebook
