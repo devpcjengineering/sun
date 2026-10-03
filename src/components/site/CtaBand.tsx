@@ -18,9 +18,9 @@ export default function CtaBand({ settings }: { settings: SiteSettings }) {
         aria-hidden="true"
       />
       <Container className="relative py-16 text-center sm:py-24">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/80">#teamsunnakhon</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white">#teamsunnakhon</p>
         <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-extrabold leading-tight sm:text-5xl">{keepTogether(settings.cta_title)}</h2>
-        <p className="mx-auto mt-4 max-w-xl text-base text-white/85 sm:text-lg">{settings.cta_text}</p>
+        <p className="mx-auto mt-4 max-w-xl text-base text-white sm:text-lg">{settings.cta_text}</p>
         <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
           <a href={telHref(settings.phone)} className={`${btn} bg-white text-ink hover:bg-ink hover:text-white`}>
             <Phone className="h-5 w-5" aria-hidden="true" />

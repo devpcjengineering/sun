@@ -9,7 +9,7 @@ function Highlighted({ text }: { text: string }) {
     <>
       {text.split(/(#\S+)/g).map((part, i) =>
         part.startsWith("#") ? (
-          <span key={i} className="text-brand">
+          <span key={i} className="text-brand-light">
             {part}
           </span>
         ) : (
@@ -43,7 +43,7 @@ export default function Stats({ stats, band_eyebrow, band_title, band_text, tick
         <div>
           <Reveal>
             {band_eyebrow && (
-              <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.2em] text-brand">
+              <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.2em] text-brand-light">
                 <span className="h-px w-8 bg-brand" aria-hidden="true" />
                 {band_eyebrow}
               </p>
@@ -75,17 +75,19 @@ export default function Stats({ stats, band_eyebrow, band_title, band_text, tick
         {caps.length > 0 && (
           <ul className="grid gap-4 sm:grid-cols-2">
             {caps.map((c, i) => (
-              <Reveal key={`${c.title}-${i}`} delay={i * 90} className="group">
-                <li className="h-full rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-colors duration-300 hover:border-brand hover:bg-brand">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-white transition-colors group-hover:bg-white group-hover:text-brand">
-                    <ServiceIcon name={c.icon} className="h-6 w-6" />
-                  </span>
-                  <h3 className="mt-5 text-lg font-bold">{c.title}</h3>
-                  {c.text && (
-                    <p className="mt-1.5 text-sm text-white/65 transition-colors group-hover:text-white/90">{c.text}</p>
-                  )}
-                </li>
-              </Reveal>
+              <li key={`${c.title}-${i}`}>
+                <Reveal delay={i * 90} className="group h-full">
+                  <div className="h-full rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-colors duration-300 hover:border-brand hover:bg-brand">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-white transition-colors group-hover:bg-white group-hover:text-brand">
+                      <ServiceIcon name={c.icon} className="h-6 w-6" />
+                    </span>
+                    <h3 className="mt-5 text-lg font-bold">{c.title}</h3>
+                    {c.text && (
+                      <p className="mt-1.5 text-sm text-white/70 transition-colors group-hover:text-white">{c.text}</p>
+                    )}
+                  </div>
+                </Reveal>
+              </li>
             ))}
           </ul>
         )}

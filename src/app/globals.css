@@ -6,6 +6,7 @@
   --foreground: #0a0a0a;
   --brand: #cc0000;
   --brand-dark: #a30000;
+  --brand-light: #ff6b6b; /* แดงสว่าง สำหรับตัวอักษรเล็กบนพื้นดำ (คอนทราสต์ ≥ 4.5:1) */
   --ink: #0a0a0a;
   --muted: #6b6b6b;
   --line: #e7e7e7;
@@ -17,6 +18,7 @@
   --color-foreground: var(--foreground);
   --color-brand: var(--brand);
   --color-brand-dark: var(--brand-dark);
+  --color-brand-light: var(--brand-light);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);

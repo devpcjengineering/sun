@@ -24,7 +24,7 @@ export default function Footer({ settings, services }: { settings: SiteSettings;
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/60">
             Event, Live Commerce และ Production ครบวงจร จบในที่เดียว ด้วยประสบการณ์กว่า 4 ปี
           </p>
-          <p className="mt-4 text-sm font-semibold text-brand">#teamsunnakhon</p>
+          <p className="mt-4 text-sm font-semibold text-brand-light">#teamsunnakhon</p>
           <ul className="mt-6 flex flex-wrap gap-2">
             {socials.map((s) => (
               <li key={s.label}>
@@ -113,18 +113,18 @@ export default function Footer({ settings, services }: { settings: SiteSettings;
         </div>
       </Container>
       <div className="border-t border-white/10">
-        <Container className="flex flex-col items-center gap-2 pt-6 text-center text-sm text-white/50 sm:flex-row sm:justify-between sm:pb-24 sm:text-left">
+        <Container className="flex flex-col items-center gap-2 pt-6 text-center text-sm text-white/65 sm:flex-row sm:justify-between sm:pb-24 sm:text-left">
           <p>© 2026 Sunnakhon group. All Rights Reserved.</p>
           <p className="flex items-center gap-4">
             {/* เดสก์ท็อป: อยู่หน้า #teamsunnakhon */}
-            <a href="/admin" className="hidden text-white/40 transition-colors hover:text-white sm:inline">
+            <a href="/admin" className="hidden text-white/70 transition-colors hover:text-white sm:inline">
               เข้าสู่ระบบหลังบ้าน
             </a>
             <span>#teamsunnakhon</span>
           </p>
         </Container>
         {/* มือถือ: ล่างสุดของหน้า กึ่งกลาง */}
-        <Container className="flex justify-center pb-24 pt-3 text-sm text-white/40 sm:hidden">
+        <Container className="flex justify-center pb-24 pt-3 text-sm text-white/70 sm:hidden">
           <a href="/admin" className="transition-colors hover:text-white">
             เข้าสู่ระบบหลังบ้าน
           </a>
