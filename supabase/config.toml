@@ -1,0 +1,8 @@
+# ใช้กับ Supabase CLI (supabase functions deploy)
+# verify_jwt = false เพราะฟังก์ชันตรวจ session + สิทธิ์แอดมินเองใน requireAdmin()
+# (รองรับ publishable/secret key รุ่นใหม่ที่ไม่ใช่ JWT)
+[functions.cloudinary-sign]
+verify_jwt = false
+
+[functions.cloudinary-delete]
+verify_jwt = false
