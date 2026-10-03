@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 // เพจที่ตั้ง openGraph เองจะทับของ layout ทั้งก้อน (รวมรูปและชื่อเว็บ) — ใช้ helper นี้เพื่อให้ได้ครบทุกหน้า
 export const SITE_NAME = "SUNNAKHON GROUP";
 
-/** รูปตัวอย่างตอนแชร์ (Facebook/LINE ฯลฯ) — จัตุรัส 1200×1200 หน้าตาเดียวกับ favicon (public/og-image.png) */
-export const OG_IMAGE = { url: "/og-image.png", width: 1200, height: 1200, alt: `${SITE_NAME} — Event, Live Commerce & Production ครบวงจร` };
+/** รูปตัวอย่างตอนแชร์ (Facebook/Messenger/LINE) — 1200×630 หน้าตาเดียวกับ favicon, S อยู่ในโซนปลอดภัยกลางภาพ (public/og-image.png) */
+export const OG_IMAGE = { url: "/og-image.png", width: 1200, height: 630, alt: `${SITE_NAME} — Event, Live Commerce & Production ครบวงจร` };
 
 /** รูปกว้าง 1200×630 สำหรับ Twitter/X (card ใหญ่) */
 export const TWITTER_IMAGE = "/twitter-image.png";
