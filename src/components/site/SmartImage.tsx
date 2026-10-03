@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { cloudinaryLoader, isCloudinaryUrl } from "@/lib/cloudinary-loader";
 
 type Props = {
   src: string;
@@ -10,15 +13,10 @@ type Props = {
 
 /**
  * รูปแบบ fill (parent ต้อง relative + กำหนดขนาด)
- * Cloudinary -> next/image, โฮสต์อื่น -> unoptimized เพื่อไม่ให้ติด remotePatterns
+ * Cloudinary -> โหลดตรงจาก CDN พร้อม f_auto/q_auto/ย่อขนาดตามหน้าจอ, โฮสต์อื่น -> unoptimized
  */
 export default function SmartImage({ src, alt, sizes, className, priority }: Props) {
-  let cloudinary = false;
-  try {
-    cloudinary = new URL(src).hostname === "res.cloudinary.com";
-  } catch {
-    cloudinary = src.startsWith("/");
-  }
+  const cloud = isCloudinaryUrl(src);
   return (
     <Image
       src={src}
@@ -26,7 +24,8 @@ export default function SmartImage({ src, alt, sizes, className, priority }: Pro
       fill
       sizes={sizes}
       priority={priority}
-      unoptimized={!cloudinary}
+      loader={cloud ? cloudinaryLoader : undefined}
+      unoptimized={!cloud}
       className={className}
     />
   );

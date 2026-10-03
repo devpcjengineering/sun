@@ -4,14 +4,9 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { GalleryImage } from "@/lib/types";
+import { cloudinaryLoader, isCloudinaryUrl } from "@/lib/cloudinary-loader";
 
-function isCloudinary(url: string) {
-  try {
-    return new URL(url).hostname === "res.cloudinary.com";
-  } catch {
-    return false;
-  }
-}
+const isCloudinary = isCloudinaryUrl;
 
 /** แกลเลอรีรูป + lightbox (ปุ่ม Esc / ลูกศรซ้ายขวา) */
 export default function Gallery({ images, title }: { images: GalleryImage[]; title: string }) {
@@ -63,6 +58,7 @@ export default function Gallery({ images, title }: { images: GalleryImage[]; tit
                 alt={`${title} รูปที่ ${i + 1}`}
                 fill
                 sizes="(min-width: 1024px) 33vw, 50vw"
+                loader={isCloudinary(img.url) ? cloudinaryLoader : undefined}
                 unoptimized={!isCloudinary(img.url)}
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
@@ -120,6 +116,7 @@ export default function Gallery({ images, title }: { images: GalleryImage[]; tit
               alt={`${title} รูปที่ ${index + 1}`}
               fill
               sizes="100vw"
+              loader={isCloudinary(images[index].url) ? cloudinaryLoader : undefined}
               unoptimized={!isCloudinary(images[index].url)}
               className="object-contain"
             />
