@@ -8,7 +8,13 @@ export type UploadedImage = { url: string; public_id: string; width: number; hei
 export async function uploadImage(file: File, folder: CloudinaryFolder): Promise<UploadedImage> {
   const sb = createClient();
   const { data: s, error } = await sb.functions.invoke("cloudinary-sign", { body: { folder } });
-  if (error || !s?.signature) throw new Error("ขอสิทธิ์อัปโหลดไม่สำเร็จ (ต้องล็อกอินเป็นแอดมิน / ตั้งค่า Edge Function แล้วหรือยัง)");
+  if (error || !s?.signature) {
+    let detail = "";
+    try {
+      detail = (await (error as { context?: Response })?.context?.json())?.error ?? "";
+    } catch {}
+    throw new Error(detail || "ขอสิทธิ์อัปโหลดไม่สำเร็จ (ต้องล็อกอินเป็นแอดมิน / ตั้งค่า Edge Function แล้วหรือยัง)");
+  }
 
   const fd = new FormData();
   fd.append("file", file);
@@ -18,7 +24,10 @@ export async function uploadImage(file: File, folder: CloudinaryFolder): Promise
   fd.append("folder", s.folder);
 
   const up = await fetch(`https://api.cloudinary.com/v1_1/${s.cloudName}/image/upload`, { method: "POST", body: fd });
-  if (!up.ok) throw new Error("อัปโหลดรูปไม่สำเร็จ");
+  if (!up.ok) {
+    const msg = (await up.json().catch(() => null))?.error?.message;
+    throw new Error(msg ? `Cloudinary: ${msg}` : "อัปโหลดรูปไม่สำเร็จ");
+  }
   const j = await up.json();
   return { url: j.secure_url, public_id: j.public_id, width: j.width, height: j.height };
 }

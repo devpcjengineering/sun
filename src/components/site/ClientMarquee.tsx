@@ -9,7 +9,7 @@ function Logo({ client }: { client: Client }) {
         src={client.logo_url}
         alt={client.name}
         sizes="176px"
-        className="object-contain opacity-60 grayscale transition duration-300 group-hover:opacity-100 group-hover:grayscale-0"
+        className="object-contain"
       />
     </span>
   );
@@ -44,13 +44,13 @@ export default function ClientMarquee({ clients }: { clients: Client[] }) {
         </div>
       </div>
       <div
-        className="marquee mt-10 overflow-hidden motion-reduce:overflow-x-auto [mask-image:linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)]"
+        className="marquee mt-10 overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)]"
       >
         <div className="marquee-track items-center" style={{ animationDuration: `${Math.max(25, half.length * 3.5)}s` }}>
           {half.map((c, i) => (
             <Logo key={`a-${c.id}-${i}`} client={c} />
           ))}
-          <div className="contents" aria-hidden="true">
+          <div className="marquee-dup contents" aria-hidden="true">
             {half.map((c, i) => (
               <div key={`b-${c.id}-${i}`} className="group px-6 sm:px-9">
                 <span className="relative block h-14 w-36 sm:h-16 sm:w-44">
@@ -58,7 +58,7 @@ export default function ClientMarquee({ clients }: { clients: Client[] }) {
                     src={c.logo_url}
                     alt=""
                     sizes="176px"
-                    className="object-contain opacity-60 grayscale transition duration-300 group-hover:opacity-100 group-hover:grayscale-0"
+                    className="object-contain"
                   />
                 </span>
               </div>

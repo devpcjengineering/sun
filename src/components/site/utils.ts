@@ -7,6 +7,15 @@ export const NAV_LINKS = [
   { href: "/packages", label: "แพ็คเก็จ/ราคา" },
 ] as const;
 
+/** กันไม่ให้คำสำคัญถูกตัดขึ้นบรรทัดใหม่กลางคำ (เช่น "ครบ/วงจร", "Live/Commerce") */
+export function keepTogether(text: string): string {
+  return text
+    .replace(/ครบวงจร/g, "ครบ⁠วงจร")
+    .replace(/Live Commerce/gi, (m) => m.replace(" ", " "))
+    .replace(/Motion Graphics/gi, (m) => m.replace(" ", " "))
+    .replace(/Video Production/gi, (m) => m.replace(" ", " "));
+}
+
 export function telHref(phone: string): string {
   return `tel:${phone.replace(/[^0-9+]/g, "")}`;
 }

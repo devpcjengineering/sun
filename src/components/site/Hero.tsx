@@ -2,6 +2,7 @@ import { Mic, Palette, Smartphone, Clapperboard } from "lucide-react";
 import type { SiteSettings } from "@/lib/types";
 import SmartImage from "./SmartImage";
 import { ButtonLink, Container } from "./ui";
+import { keepTogether } from "./utils";
 
 const CHIPS = [
   { icon: Mic, label: "Event" },
@@ -36,10 +37,10 @@ export default function Hero({ settings }: { settings: SiteSettings }) {
           <h1
             className="fade-up mt-6 text-4xl font-extrabold leading-[1.15] tracking-tight text-ink [animation-delay:80ms] [text-wrap:balance] sm:text-5xl lg:text-6xl"
           >
-            {settings.hero_title}
+            {keepTogether(settings.hero_title)}
           </h1>
           <p className="fade-up mt-6 max-w-xl text-base leading-relaxed text-muted [animation-delay:160ms] sm:text-lg">
-            {settings.hero_subtitle}
+            {keepTogether(settings.hero_subtitle)}
           </p>
           <div className="fade-up mt-10 flex flex-col gap-3 [animation-delay:240ms] sm:flex-row">
             <ButtonLink href="/contact" arrow>

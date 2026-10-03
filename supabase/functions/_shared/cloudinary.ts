@@ -31,11 +31,15 @@ export async function requireAdmin(req: Request): Promise<boolean> {
 
 /** Cloudinary signature = sha1(params เรียงตามตัวอักษร + api_secret) */
 export async function sign(params: Record<string, string | number | boolean>) {
+  const secret = Deno.env.get("CLOUDINARY_API_SECRET");
+  if (!secret || !Deno.env.get("CLOUDINARY_API_KEY") || !Deno.env.get("CLOUDINARY_CLOUD_NAME")) {
+    throw new Error("Cloudinary ยังไม่ได้ตั้งค่า: ต้องมี secrets CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET");
+  }
   const str =
     Object.keys(params)
       .sort()
       .map((k) => `${k}=${params[k]}`)
-      .join("&") + Deno.env.get("CLOUDINARY_API_SECRET");
+      .join("&") + secret;
   const buf = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(str));
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }

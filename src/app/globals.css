@@ -36,6 +36,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* หัวข้อขึ้นบรรทัดสมดุล ไม่ทิ้งคำค้างบรรทัดสุดท้าย (เช่น "…เนรมิตงาน / ของคุณหรือยัง?") */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+p, li {
+  text-wrap: pretty;
+}
+
 ::selection {
   background: var(--brand);
   color: #fff;
@@ -51,9 +59,6 @@ body {
   width: max-content;
   animation: marquee-left 40s linear infinite;
 }
-.marquee:hover .marquee-track {
-  animation-play-state: paused;
-}
 
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(18px); }
@@ -64,6 +69,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track, .fade-up { animation: none; }
+  .fade-up { animation: none; }
+  /* โลโก้ลูกค้าไหลอัตโนมัติเสมอ แม้เครื่องตั้ง "ลดการเคลื่อนไหว" (ตามที่เจ้าของเว็บต้องการ) */
   html { scroll-behavior: auto; }
 }

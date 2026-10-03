@@ -12,7 +12,12 @@ Deno.serve(async (req) => {
 
   const timestamp = Math.round(Date.now() / 1000);
   const fullFolder = `${ROOT}/${folder}`;
-  const signature = await sign({ folder: fullFolder, timestamp });
+  let signature: string;
+  try {
+    signature = await sign({ folder: fullFolder, timestamp });
+  } catch (e) {
+    return json({ error: (e as Error).message }, 500);
+  }
 
   return json({
     signature,
