@@ -3,8 +3,11 @@ import type { Metadata } from "next";
 // เพจที่ตั้ง openGraph เองจะทับของ layout ทั้งก้อน (รวมรูปและชื่อเว็บ) — ใช้ helper นี้เพื่อให้ได้ครบทุกหน้า
 export const SITE_NAME = "SUNNAKHON GROUP";
 
-/** รูปตัวอย่างตอนแชร์ 1200×630 (public/og-image.png) */
-export const OG_IMAGE = { url: "/og-image.png", width: 1200, height: 630, alt: `${SITE_NAME} — Event, Live Commerce & Production ครบวงจร` };
+/** รูปตัวอย่างตอนแชร์ (Facebook/LINE ฯลฯ) — จัตุรัส 1200×1200 หน้าตาเดียวกับ favicon (public/og-image.png) */
+export const OG_IMAGE = { url: "/og-image.png", width: 1200, height: 1200, alt: `${SITE_NAME} — Event, Live Commerce & Production ครบวงจร` };
+
+/** รูปกว้าง 1200×630 สำหรับ Twitter/X (card ใหญ่) */
+export const TWITTER_IMAGE = "/twitter-image.png";
 
 type OG = NonNullable<Metadata["openGraph"]>;
 
@@ -31,5 +34,5 @@ export function openGraphFor(o: {
 
 /** Twitter card ใหญ่ + รูปเดียวกับ OG */
 export function twitterFor(o: { title: string; description?: string; image?: string }): NonNullable<Metadata["twitter"]> {
-  return { card: "summary_large_image", title: o.title, description: o.description, images: [o.image ?? OG_IMAGE.url] };
+  return { card: "summary_large_image", title: o.title, description: o.description, images: [o.image ?? TWITTER_IMAGE] };
 }
