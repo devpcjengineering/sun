@@ -1,8 +1,10 @@
-"use client";
+import type { CSSProperties, ReactNode } from "react";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
-
-/** เอฟเฟกต์ fade-up เมื่อเลื่อนมาถึง (เคารพ prefers-reduced-motion ผ่าน motion-reduce:) */
+/**
+ * เอฟเฟกต์ fade-up เมื่อเลื่อนมาถึง — ใช้ CSS scroll-driven animation (ไม่มี JavaScript ฝั่ง client)
+ * เบราว์เซอร์ที่ยังไม่รองรับจะเห็นเนื้อหาทันทีโดยไม่มีแอนิเมชัน; เคารพ prefers-reduced-motion
+ * delay (ms) ใช้เลื่อนจังหวะการเข้าของรายการที่เรียงกัน (stagger)
+ */
 export default function Reveal({
   children,
   delay = 0,
@@ -12,37 +14,9 @@ export default function Reveal({
   delay?: number;
   className?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [shown, setShown] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (typeof IntersectionObserver === "undefined") {
-      const t = setTimeout(() => setShown(true), 0);
-      return () => clearTimeout(t);
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setShown(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
+  const style = delay ? ({ "--rd": Math.min(20, Math.round(delay / 20)) } as CSSProperties) : undefined;
   return (
-    <div
-      ref={ref}
-      style={{ transitionDelay: shown ? `${delay}ms` : undefined }}
-      className={`transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-        shown ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-      } ${className}`}
-    >
+    <div style={style} className={`reveal ${className}`}>
       {children}
     </div>
   );

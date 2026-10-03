@@ -37,7 +37,7 @@ const slugField = z
   .max(80, "slug ยาวเกิน 80 ตัวอักษร")
   .refine(
     (v) => v === "" || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v),
-    "slug ใช้ได้เฉพาะ a-z, 0-9 และขีดกลาง (-) เช่น kasetsart-university",
+    "slug ใช้ได้เฉพาะ a-z, 0-9 และขีดกลาง (-) เช่น rangsit-university",
   )
   .transform((v) => v || null);
 
