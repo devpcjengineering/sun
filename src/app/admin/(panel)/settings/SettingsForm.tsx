@@ -60,7 +60,7 @@ export function SettingsForm({ settings: s }: { settings: SiteSettings }) {
 
   return (
     <form onSubmit={onSubmit} noValidate>
-      <div role="tablist" aria-label="หมวดการตั้งค่า" className="-mx-1 mb-5 flex gap-1 overflow-x-auto px-1 pb-1">
+      <div role="tablist" aria-label="หมวดการตั้งค่า" className="mb-5 grid grid-cols-2 gap-1 sm:flex sm:flex-wrap">
         {TABS.map((t, i) => (
           <button
             key={t.id}
@@ -72,7 +72,7 @@ export function SettingsForm({ settings: s }: { settings: SiteSettings }) {
             tabIndex={tab === t.id ? 0 : -1}
             onClick={() => setTab(t.id)}
             onKeyDown={(e) => onTabKey(e, i)}
-            className={`shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition ${
+            className={`rounded-lg px-4 py-2 text-center text-sm font-medium transition ${
               tab === t.id ? "bg-ink text-white" : "text-muted hover:bg-soft hover:text-ink"
             }`}
           >

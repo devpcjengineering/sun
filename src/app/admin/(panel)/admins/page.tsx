@@ -51,10 +51,11 @@ export default async function AdminsPage({ searchParams }: { searchParams: Promi
             const isMe = a.email.toLowerCase() === myEmail;
             const isLast = admins.length <= 1 || (canManage(a.role) && managerCount <= 1);
             return (
-              <li key={a.email} className="flex items-center justify-between gap-3 px-5 py-4">
-                <div className="min-w-0">
-                  <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
-                    <span className="break-all">{a.email}</span>
+              <li key={a.email} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  {/* มือถือ: อีเมลเต็มบรรทัดของตัวเอง ป้ายตำแหน่งอยู่บรรทัดถัดไป */}
+                  <p className="text-sm font-medium text-ink [overflow-wrap:anywhere]">{a.email}</p>
+                  <p className="mt-1.5 flex flex-wrap items-center gap-2">
                     <Badge tone={ROLE_TONE[a.role]}>{ROLE_LABELS[a.role]}</Badge>
                     {isMe && <Badge tone="black">คุณ</Badge>}
                   </p>
@@ -63,7 +64,7 @@ export default async function AdminsPage({ searchParams }: { searchParams: Promi
                     {new Intl.DateTimeFormat("th-TH", { dateStyle: "medium", timeZone: "Asia/Bangkok" }).format(new Date(a.created_at))}
                   </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
                   {/* ลดสิทธิ์ตัวเอง / แอดมิน-Dev คนสุดท้ายไม่ได้ → ล็อก dropdown */}
                   <RoleSelect email={a.email} role={a.role} disabled={isMe || isLast} />
                 {isMe || isLast ? (

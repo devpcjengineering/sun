@@ -177,7 +177,74 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
         </EmptyState>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-line bg-white">
-          <div className="overflow-x-auto">
+          {/* มือถือ/แท็บเล็ตเล็ก: การ์ดเรียงแนวตั้ง ไม่ต้องเลื่อนขวา */}
+          <ul className="divide-y divide-line md:hidden">
+            {posts.map((p) => (
+              <li key={p.id} className="space-y-3 p-4">
+                <div className="flex gap-3">
+                  <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-lg border border-line bg-soft">
+                    {p.cover_url ? (
+                      <Image src={p.cover_url} alt="" fill sizes="80px" className="object-cover" />
+                    ) : (
+                      <ImageOff className="absolute inset-0 m-auto size-5 text-muted" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/admin/posts/${p.id}/edit?kind=${p.kind ?? "work"}`}
+                      className="font-medium text-ink [overflow-wrap:anywhere] hover:text-brand"
+                    >
+                      {p.title}
+                    </Link>
+                    <p className="mt-0.5 font-mono text-xs text-muted [overflow-wrap:anywhere]">{p.slug}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <Badge tone={p.kind === "article" ? "black" : "red"}>{kindLabel(p.kind ?? "work")}</Badge>
+                  {p.kind !== "article" && <Badge>{categoryLabel(p.category)}</Badge>}
+                  <Badge tone={p.published ? "green" : "gray"}>{p.published ? "เผยแพร่แล้ว" : "ฉบับร่าง"}</Badge>
+                  {p.featured && (
+                    <span className="inline-flex items-center gap-1 text-brand">
+                      <Star className="size-3.5 fill-brand" aria-hidden /> แนะนำ
+                    </span>
+                  )}
+                  <span className="text-muted">{fmt(p.published_at ?? p.created_at)}</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <form action={toggleFeatured}>
+                    <input type="hidden" name="id" value={p.id} />
+                    <input type="hidden" name="featured" value={String(!p.featured)} />
+                    <button type="submit" className={`${btnGhost} !px-3 !py-2 text-xs`}>
+                      <Star className={`size-4 ${p.featured ? "fill-brand text-brand" : ""}`} aria-hidden />
+                      {p.featured ? "เลิกแนะนำ" : "ตั้งเป็นแนะนำ"}
+                    </button>
+                  </form>
+                  <form action={togglePublish}>
+                    <input type="hidden" name="id" value={p.id} />
+                    <input type="hidden" name="publish" value={String(!p.published)} />
+                    <button type="submit" className={`${btnGhost} !px-3 !py-2 text-xs`}>
+                      {p.published ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+                      {p.published ? "ซ่อน" : "เผยแพร่"}
+                    </button>
+                  </form>
+                  <Link href={`/admin/posts/${p.id}/edit?kind=${p.kind ?? "work"}`} className={`${btnGhost} !px-3 !py-2 text-xs`}>
+                    <Pencil className="size-4" aria-hidden /> แก้ไข
+                  </Link>
+                  <form action={deletePost}>
+                    <input type="hidden" name="id" value={p.id} />
+                    <ConfirmButton
+                      message={`ลบ${kindLabel(p.kind ?? "work")} "${p.title}" ถาวร?`}
+                      className={`${btnGhost} !px-3 !py-2 text-xs text-brand hover:!bg-brand/10`}
+                    >
+                      <Trash2 className="size-4" aria-hidden /> ลบ
+                    </ConfirmButton>
+                  </form>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[820px] text-left text-sm">
               <thead className="border-b border-line bg-soft/60 text-xs uppercase tracking-wide text-muted">
                 <tr>

@@ -38,7 +38,7 @@ export function RowControls({
   const nextLabel = axis === "vertical" ? "เลื่อนลง" : "เลื่อนไปถัดไป";
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-1.5">
       <form action={actions.toggle}>
         <input type="hidden" name="id" value={id} />
         <input type="hidden" name="published" value={String(!published)} />
@@ -61,33 +61,36 @@ export function RowControls({
         </button>
       </form>
 
-      <form action={actions.move}>
-        <input type="hidden" name="id" value={id} />
-        <input type="hidden" name="dir" value="up" />
-        <button type="submit" disabled={isFirst} className={iconBtn} aria-label={prevLabel} title={prevLabel}>
-          <Prev className="size-4" aria-hidden />
-        </button>
-      </form>
-      <form action={actions.move}>
-        <input type="hidden" name="id" value={id} />
-        <input type="hidden" name="dir" value="down" />
-        <button type="submit" disabled={isLast} className={iconBtn} aria-label={nextLabel} title={nextLabel}>
-          <Next className="size-4" aria-hidden />
-        </button>
-      </form>
+      {/* ลูกศรเลื่อนลำดับ + แก้ไข + ลบ อยู่รวมกันในแถวเดียว (ลงมาอยู่ใต้สวิตช์บนมือถือ) */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <form action={actions.move}>
+          <input type="hidden" name="id" value={id} />
+          <input type="hidden" name="dir" value="up" />
+          <button type="submit" disabled={isFirst} className={iconBtn} aria-label={prevLabel} title={prevLabel}>
+            <Prev className="size-4" aria-hidden />
+          </button>
+        </form>
+        <form action={actions.move}>
+          <input type="hidden" name="id" value={id} />
+          <input type="hidden" name="dir" value="down" />
+          <button type="submit" disabled={isLast} className={iconBtn} aria-label={nextLabel} title={nextLabel}>
+            <Next className="size-4" aria-hidden />
+          </button>
+        </form>
 
-      {children}
+        {children}
 
-      <form action={actions.remove}>
-        <input type="hidden" name="id" value={id} />
-        <ConfirmButton
-          message={deleteMessage ?? `ยืนยันการลบ${itemLabel}? ไม่สามารถย้อนกลับได้`}
-          className={`${iconBtn} text-brand hover:bg-brand/10`}
-        >
-          <Trash2 className="size-4" aria-hidden />
-          <span className="sr-only">ลบ{itemLabel}</span>
-        </ConfirmButton>
-      </form>
+        <form action={actions.remove}>
+          <input type="hidden" name="id" value={id} />
+          <ConfirmButton
+            message={deleteMessage ?? `ยืนยันการลบ${itemLabel}? ไม่สามารถย้อนกลับได้`}
+            className={`${iconBtn} text-brand hover:bg-brand/10`}
+          >
+            <Trash2 className="size-4" aria-hidden />
+            <span className="sr-only">ลบ{itemLabel}</span>
+          </ConfirmButton>
+        </form>
+      </div>
     </div>
   );
 }
