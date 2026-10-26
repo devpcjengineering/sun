@@ -31,6 +31,7 @@ export type SiteSettings = {
   map_url: string | null;
   seo_title: string;
   seo_description: string;
+  ga_id: string | null; // Google Analytics 4 Measurement ID (G-XXXXXXXXXX)
   updated_at: string;
 };
 

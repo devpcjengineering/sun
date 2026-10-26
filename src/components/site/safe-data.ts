@@ -52,6 +52,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   seo_title: "SUNNAKHON GROUP | Event, Live Commerce & Production ครบวงจร",
   seo_description:
     "รับจัดงานประกวด คอนเสิร์ต งานนักศึกษา ไลฟ์สดขายสินค้า วิดีโอโปรดักชัน และกราฟิก/Motion Graphics ประสบการณ์กว่า 4 ปี",
+  ga_id: null,
   updated_at: "",
 };
 

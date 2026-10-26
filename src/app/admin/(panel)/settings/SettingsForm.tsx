@@ -353,6 +353,20 @@ export function SettingsForm({ settings: s }: { settings: SiteSettings }) {
               className={inputCls}
             />
           </Field>
+          <Field
+            label="Google Analytics (Measurement ID)"
+            hint="รูปแบบ G-XXXXXXXXXX — ดูได้ที่ analytics.google.com > Admin > Data Streams > Web · เว้นว่าง = ไม่ใช้ GA (สถิติในระบบจัดการเว็บไซต์ยังทำงานตามปกติ)"
+          >
+            <input
+              name="ga_id"
+              maxLength={30}
+              defaultValue={s.ga_id ?? ""}
+              className={`${inputCls} font-mono uppercase`}
+              placeholder="G-XXXXXXXXXX"
+              autoCapitalize="characters"
+              spellCheck={false}
+            />
+          </Field>
         </Card>
       </Panel>
 

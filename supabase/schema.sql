@@ -104,6 +104,9 @@ alter table public.site_settings add column if not exists capabilities jsonb not
   {"icon":"palette","title":"Graphic & Motion","text":"ดีไซน์ที่สะกดทุกสายตา"}
 ]'::jsonb;
 
+-- Google Analytics 4 Measurement ID (G-XXXXXXXXXX) — แก้ได้จากระบบจัดการเว็บไซต์ แท็บ SEO (ว่าง = ไม่โหลด GA)
+alter table public.site_settings add column if not exists ga_id text;
+
 -- ───────── services (บริการของเรา) ─────────
 create table if not exists public.services (
   id uuid primary key default gen_random_uuid(),

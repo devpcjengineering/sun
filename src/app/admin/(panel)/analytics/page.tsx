@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, BarChart3, ExternalLink, Eye, Inbox, Monitor, Smartphone, Users } from "lucide-react";
+import { AlertTriangle, BarChart3, ExternalLink, Eye, Inbox, Monitor, Settings, Smartphone, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Badge, btnGhost, Card, EmptyState, PageHeader } from "@/components/admin/ui";
 import { countryLabel, sourceLabel } from "@/lib/analytics";
@@ -113,9 +113,14 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   const days = (PERIODS.find((p) => String(p.value) === sp.days) ?? PERIODS[1]).value;
 
   const sb = await createClient();
-  const { data, error } = await sb.rpc("page_view_summary", { p_days: days });
+  const [{ data, error }, settingsRes] = await Promise.all([
+    sb.rpc("page_view_summary", { p_days: days }),
+    sb.from("site_settings").select("ga_id").eq("id", 1).maybeSingle(),
+  ]);
   const s = (data ?? null) as AnalyticsSummary | null;
-  const gaId = process.env.NEXT_PUBLIC_GA_ID ?? "";
+  // รหัส GA จากหน้าตั้งค่าเว็บไซต์ก่อน ถ้าไม่มีค่อยใช้ env
+  const gaFromSettings = ((settingsRes.data as { ga_id?: string | null } | null)?.ga_id ?? "").trim();
+  const gaId = gaFromSettings || process.env.NEXT_PUBLIC_GA_ID || "";
   const notInstalled = !!error && /page_view_summary|schema cache|does not exist/i.test(error.message);
 
   const deviceCount = (k: string) => s?.devices.find((d) => d.key === k)?.count ?? 0;
@@ -209,27 +214,37 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
             </h2>
             {gaId ? (
               <p className="mt-1 text-sm text-muted">
-                เชื่อมต่อแล้ว (<span className="font-mono">{gaId}</span>) — รายงานละเอียด เช่น เวลาบนหน้า, เพศ/อายุ, Google Ads ดูได้ที่ Google Analytics
+                เชื่อมต่อแล้ว (<span className="font-mono">{gaId}</span>
+                {!gaFromSettings && " จาก env"}) — รายงานละเอียด เช่น เวลาบนหน้า, เพศ/อายุ, Google Ads ดูได้ที่ Google Analytics
               </p>
             ) : (
               <div className="mt-1 space-y-1 text-sm text-muted">
-                <p>ยังไม่ได้เชื่อมต่อ — เปิดใช้ฟรีได้ใน 3 ขั้น:</p>
+                <p>ยังไม่ได้เชื่อมต่อ — เปิดใช้ฟรีได้ใน 2 ขั้น:</p>
                 <ol className="list-decimal space-y-0.5 pl-5">
                   <li>
                     สร้าง Property ที่ analytics.google.com → Admin → Data Streams → Web แล้วคัดลอก <span className="font-mono">Measurement ID (G-XXXXXXXXXX)</span>
                   </li>
                   <li>
-                    ใน Vercel → Settings → Environment Variables เพิ่ม <span className="font-mono">NEXT_PUBLIC_GA_ID</span> = รหัสนั้น
+                    นำไปวางที่{" "}
+                    <Link href="/admin/settings" className="font-medium text-brand hover:underline">
+                      ตั้งค่าเว็บไซต์ → แท็บ SEO → Google Analytics
+                    </Link>{" "}
+                    แล้วกดบันทึก (มีผลทันที ไม่ต้อง deploy ใหม่)
                   </li>
-                  <li>Redeploy หนึ่งครั้ง</li>
                 </ol>
               </div>
             )}
           </div>
-          <a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer" className={`${btnGhost} shrink-0`}>
-            <ExternalLink className="size-4" />
-            เปิด Google Analytics
-          </a>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Link href="/admin/settings" className={btnGhost}>
+              <Settings className="size-4" />
+              แก้รหัส GA
+            </Link>
+            <a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer" className={btnGhost}>
+              <ExternalLink className="size-4" />
+              เปิด Google Analytics
+            </a>
+          </div>
         </div>
       </Card>
     </>

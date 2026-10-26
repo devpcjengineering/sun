@@ -78,6 +78,13 @@ const schema = z.object({
 
   seo_title: text(120).min(1, "กรุณากรอก SEO title"),
   seo_description: text(300),
+  ga_id: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .max(30)
+    .refine((v) => v === "" || /^G-[A-Z0-9]{4,20}$/.test(v), "รหัสต้องอยู่ในรูปแบบ G-XXXXXXXXXX (Measurement ID ของ GA4)")
+    .transform((v) => v || null),
 });
 
 const LABELS: Record<string, string> = {
@@ -108,6 +115,7 @@ const LABELS: Record<string, string> = {
   map_url: "ติดต่อ · ลิงก์แผนที่",
   seo_title: "SEO · Title",
   seo_description: "SEO · Description",
+  ga_id: "SEO · Google Analytics",
 };
 
 export async function saveSettings(_prev: ActionState, fd: FormData): Promise<ActionState> {
@@ -161,6 +169,7 @@ export async function saveSettings(_prev: ActionState, fd: FormData): Promise<Ac
     map_url: field(fd, "map_url"),
     seo_title: field(fd, "seo_title"),
     seo_description: field(fd, "seo_description"),
+    ga_id: field(fd, "ga_id"),
   });
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
@@ -172,7 +181,16 @@ export async function saveSettings(_prev: ActionState, fd: FormData): Promise<Ac
 
   const sb = await createClient();
   const { data: old } = await sb.from("site_settings").select("hero_image_public_id").eq("id", 1).maybeSingle();
-  const { error } = await sb.from("site_settings").upsert({ id: 1, ...p.data }, { onConflict: "id" });
+  let { error } = await sb.from("site_settings").upsert({ id: 1, ...p.data }, { onConflict: "id" });
+  if (error && /ga_id/.test(error.message)) {
+    // ฐานข้อมูลยังไม่มีคอลัมน์ ga_id (ยังไม่ได้รัน schema.sql ล่าสุด) — บันทึกส่วนอื่นก่อน
+    const { ga_id: _skip, ...rest } = p.data;
+    void _skip;
+    ({ error } = await sb.from("site_settings").upsert({ id: 1, ...rest }, { onConflict: "id" }));
+    if (!error && p.data.ga_id) {
+      return { ok: false, error: "บันทึกแล้ว ยกเว้นรหัส Google Analytics — ต้องรัน supabase/schema.sql ใน SQL Editor ก่อนจึงจะบันทึกรหัสได้" };
+    }
+  }
   if (error) return { ok: false, error: error.message };
 
   if (old?.hero_image_public_id && old.hero_image_public_id !== p.data.hero_image_public_id) {
