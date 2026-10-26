@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 const ERRORS: Record<string, string> = {
-  not_admin: "อีเมลนี้ไม่มีสิทธิ์เข้าหลังบ้าน กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มอีเมลของคุณ",
+  not_admin: "อีเมลนี้ไม่มีสิทธิ์เข้าระบบจัดการเว็บไซต์ กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มอีเมลของคุณ",
   auth: "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
   oauth: "การเข้าสู่ระบบด้วย Google ถูกยกเลิกหรือไม่สำเร็จ",
   missing_code: "ไม่พบรหัสยืนยันจาก Google กรุณาลองใหม่อีกครั้ง",
@@ -38,7 +38,7 @@ export default async function LoginPage({
             <img src="/brand/logo-black.svg" alt="SUNNAKHON GROUP" className="h-16 w-auto" />
           </div>
           <div className="mx-auto mt-6 h-1 w-10 rounded-full bg-brand" />
-          <h1 className="mt-6 text-center text-2xl font-semibold text-ink">เข้าสู่ระบบหลังบ้าน</h1>
+          <h1 className="mt-6 text-center text-2xl font-semibold text-ink">เข้าสู่ระบบจัดการเว็บไซต์</h1>
           <p className="mt-2 text-center text-sm text-muted">
             สำหรับผู้ดูแลเว็บไซต์ SUNNAKHON GROUP เท่านั้น
           </p>

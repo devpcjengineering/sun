@@ -1,4 +1,4 @@
-// โครงโหลดของพื้นที่เนื้อหา — แสดงทุกครั้งที่สลับเมนูภายในหลังบ้าน (sidebar ยังอยู่)
+// โครงโหลดของพื้นที่เนื้อหา — แสดงทุกครั้งที่สลับเมนูภายในระบบจัดการเว็บไซต์ (sidebar ยังอยู่)
 export default function PanelLoading() {
   return (
     <div role="status" aria-live="polite" aria-label="กำลังโหลด" className="space-y-6">

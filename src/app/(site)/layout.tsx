@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SiteLayout({ children }: { children: ReactNode }) {
   const [settings, services] = await Promise.all([loadSettings(), loadServices()]);
-  // Google Analytics 4 — ใส่ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX ใน env จึงจะโหลด (นับเฉพาะหน้าเว็บ ไม่นับหลังบ้าน)
+  // Google Analytics 4 — ใส่ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX ใน env จึงจะโหลด (นับเฉพาะหน้าเว็บ ไม่นับระบบจัดการเว็บไซต์)
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
   return (
     <>

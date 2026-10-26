@@ -1,4 +1,4 @@
-// หน้าโหลดเต็มจอ — แสดงตอนเข้าหลังบ้านครั้งแรก/รีเฟรช ระหว่างตรวจสิทธิ์และดึงข้อมูล
+// หน้าโหลดเต็มจอ — แสดงตอนเข้าระบบจัดการเว็บไซต์ครั้งแรก/รีเฟรช ระหว่างตรวจสิทธิ์และดึงข้อมูล
 export default function AdminLoading() {
   return (
     <div
@@ -11,7 +11,7 @@ export default function AdminLoading() {
       <div className="h-1 w-56 overflow-hidden rounded-full bg-soft">
         <div className="loader-bar h-full w-1/3 rounded-full bg-brand" />
       </div>
-      <p className="text-sm text-muted">กำลังโหลดหลังบ้าน…</p>
+      <p className="text-sm text-muted">กำลังโหลดระบบจัดการเว็บไซต์…</p>
     </div>
   );
 }

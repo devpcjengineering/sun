@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-// AI / LLM crawlers ที่อนุญาตให้อ่านเนื้อหาสาธารณะทั้งหมด (หลังบ้านและหน้า login ยังถูกกันไว้)
+// AI / LLM crawlers ที่อนุญาตให้อ่านเนื้อหาสาธารณะทั้งหมด (ระบบจัดการเว็บไซต์และหน้า login ยังถูกกันไว้)
 const AI_BOTS = [
   "GPTBot",
   "ChatGPT-User",

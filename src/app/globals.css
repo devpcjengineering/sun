@@ -62,7 +62,7 @@ p, li {
   animation: marquee-left 40s linear infinite;
 }
 
-/* ตัวโหลดหลังบ้าน */
+/* ตัวโหลดระบบจัดการเว็บไซต์ */
 @keyframes loader-slide {
   0% { transform: translateX(-120%); }
   100% { transform: translateX(380%); }

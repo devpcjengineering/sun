@@ -4,7 +4,7 @@
 
 create extension if not exists "pgcrypto";
 
--- ───────── admins (อีเมลที่ได้สิทธิ์เข้าหลังบ้าน) ─────────
+-- ───────── admins (อีเมลที่ได้สิทธิ์เข้าระบบจัดการเว็บไซต์) ─────────
 -- role: admin = ดูแลทุกอย่าง · dev = ทีมพัฒนา (สิทธิ์เท่า admin) · staff = จัดการเนื้อหาเท่านั้น
 create table if not exists public.admins (
   email text primary key,
@@ -91,7 +91,7 @@ create table if not exists public.site_settings (
 );
 insert into public.site_settings (id) values (1) on conflict do nothing;
 
--- แถบสีดำหน้าแรก (Why Us): หัวข้อ/ข้อความ/ตัวอักษรวิ่ง/การ์ดความสามารถ แก้ได้จากหลังบ้าน
+-- แถบสีดำหน้าแรก (Why Us): หัวข้อ/ข้อความ/ตัวอักษรวิ่ง/การ์ดความสามารถ แก้ได้จากระบบจัดการเว็บไซต์
 alter table public.site_settings add column if not exists band_eyebrow text not null default 'Why Us';
 alter table public.site_settings add column if not exists band_title text not null default '#teamsunnakhon ทำได้ทุกอย่าง';
 alter table public.site_settings add column if not exists band_text text not null default 'เราไม่ใช่แค่ออแกไนเซอร์ แต่คือพาร์ทเนอร์ที่พร้อมเนรมิตทุกไอเดียของคุณให้เกิดขึ้นจริง จบครบในที่เดียว';
@@ -240,7 +240,7 @@ create table if not exists public.page_views (
 );
 create index if not exists page_views_created_idx on public.page_views (created_at desc);
 
--- สรุปสถิติย้อนหลัง p_days วัน (เฉพาะแอดมิน) — คืน jsonb ก้อนเดียวให้หน้าหลังบ้าน
+-- สรุปสถิติย้อนหลัง p_days วัน (เฉพาะแอดมิน) — คืน jsonb ก้อนเดียวให้หน้าระบบจัดการเว็บไซต์
 create or replace function public.page_view_summary(p_days int default 30)
 returns jsonb
 language plpgsql
@@ -304,7 +304,7 @@ begin
 end;
 $$;
 
--- ลบข้อมูลเก่ากว่า 400 วัน (เรียกจากหลังบ้าน)
+-- ลบข้อมูลเก่ากว่า 400 วัน (เรียกจากระบบจัดการเว็บไซต์)
 create or replace function public.prune_page_views()
 returns void
 language sql
@@ -387,7 +387,7 @@ grant execute on function public.page_view_summary(int), public.prune_page_views
 grant all on all tables in schema public to authenticated;
 
 -- ───────── Seed ─────────
--- ผู้ดูแลระบบ (เพิ่ม/แก้ตำแหน่งเพิ่มได้ที่หลังบ้าน เมนู ผู้ดูแลระบบ)
+-- ผู้ดูแลระบบ (เพิ่ม/แก้ตำแหน่งเพิ่มได้ที่ระบบจัดการเว็บไซต์ เมนู ผู้ดูแลระบบ)
 insert into public.admins (email, role) values ('kunkorn.forwork@gmail.com', 'admin') on conflict (email) do nothing;
 
 insert into public.services (slug, title, subtitle, description, icon, features, sort_order) values

@@ -1,4 +1,4 @@
-// ใช้ร่วมกันทั้งฝั่ง browser / server / หลังบ้าน — จัดกลุ่ม "ลูกค้ามาจากไหน" จาก referrer และ utm
+// ใช้ร่วมกันทั้งฝั่ง browser / server / ระบบจัดการเว็บไซต์ — จัดกลุ่ม "ลูกค้ามาจากไหน" จาก referrer และ utm
 
 export const TRACK_ENDPOINT = "/api/track";
 /** sessionStorage key: ข้อมูลที่ผู้ชมเข้ามาครั้งแรก (ใช้ติดไปกับฟอร์มติดต่อ) */
@@ -25,7 +25,7 @@ const KNOWN: { test: RegExp; source: string }[] = [
   { test: /(^|\.)threads\.(net|com)$/i, source: "threads" },
 ];
 
-/** ชื่อแหล่งที่มาสำหรับแสดงผล (หลังบ้าน) */
+/** ชื่อแหล่งที่มาสำหรับแสดงผล (ระบบจัดการเว็บไซต์) */
 export const SOURCE_LABELS: Record<string, string> = {
   direct: "เข้าตรง / พิมพ์ URL",
   google: "Google",

@@ -29,7 +29,7 @@ export default async function AdminsPage({ searchParams }: { searchParams: Promi
 
   return (
     <>
-      <PageHeader title="ผู้ดูแลระบบ" desc="อีเมล Google ที่ได้รับอนุญาตให้เข้าหลังบ้านได้" />
+      <PageHeader title="ผู้ดูแลระบบ" desc="อีเมล Google ที่ได้รับอนุญาตให้เข้าระบบจัดการเว็บไซต์ได้" />
 
       {errorMsg && (
         <div role="alert" className="mb-4 flex items-start gap-2.5 rounded-xl border border-brand/20 bg-brand/5 px-4 py-3 text-sm text-brand">

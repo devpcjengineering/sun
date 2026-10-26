@@ -38,7 +38,7 @@ export function SidebarNav({ unread, role, onNavigate }: { unread: number; role:
   const kindParam = useSearchParams().get("kind");
 
   return (
-    <nav aria-label="เมนูหลังบ้าน" className="space-y-1">
+    <nav aria-label="เมนูระบบจัดการเว็บไซต์" className="space-y-1">
       {NAV.filter((item) => !item.manageOnly || canManage(role)).map((item) => {
         const base = item.href.split("?")[0];
         const inPosts = pathname === base || pathname.startsWith(`${base}/`);

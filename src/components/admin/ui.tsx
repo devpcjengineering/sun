@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-// Primitives ของหลังบ้าน (server-safe) — ใช้ร่วมกันทุกหน้า admin
+// Primitives ของระบบจัดการเว็บไซต์ (server-safe) — ใช้ร่วมกันทุกหน้า admin
 
 export const inputCls =
   "w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/70 outline-none transition focus:border-ink focus:ring-2 focus:ring-ink/10";

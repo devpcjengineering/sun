@@ -22,7 +22,7 @@ function Highlighted({ text }: { text: string }) {
 
 type Props = Pick<SiteSettings, "stats" | "band_eyebrow" | "band_title" | "band_text" | "ticker_items" | "capabilities">;
 
-// ค่าทั้งหมดแก้ได้ที่หลังบ้าน: ตั้งค่าเว็บไซต์ > แถบเด่นหน้าแรก
+// ค่าทั้งหมดแก้ได้ที่ระบบจัดการเว็บไซต์: ตั้งค่าเว็บไซต์ > แถบเด่นหน้าแรก
 export default function Stats({ stats, band_eyebrow, band_title, band_text, ticker_items, capabilities }: Props) {
   const items = (stats ?? []).filter((s) => s?.value);
   const caps = (capabilities ?? []).filter((c) => c?.title);

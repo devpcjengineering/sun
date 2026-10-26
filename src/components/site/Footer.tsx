@@ -118,7 +118,7 @@ export default function Footer({ settings, services }: { settings: SiteSettings;
           <p className="flex items-center gap-4">
             {/* เดสก์ท็อป: อยู่หน้า #teamsunnakhon */}
             <a href="/admin" className="hidden text-white/70 transition-colors hover:text-white sm:inline">
-              เข้าสู่ระบบหลังบ้าน
+              เข้าสู่ระบบจัดการเว็บไซต์
             </a>
             <span>#teamsunnakhon</span>
           </p>
@@ -126,7 +126,7 @@ export default function Footer({ settings, services }: { settings: SiteSettings;
         {/* มือถือ: ล่างสุดของหน้า กึ่งกลาง */}
         <Container className="flex justify-center pb-6 pt-3 text-sm text-white/70 sm:hidden">
           <a href="/admin" className="transition-colors hover:text-white">
-            เข้าสู่ระบบหลังบ้าน
+            เข้าสู่ระบบจัดการเว็บไซต์
           </a>
         </Container>
       </div>

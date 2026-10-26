@@ -117,7 +117,7 @@ export default function ContactForm({ services }: { services: string[] }) {
           />
           {err("message-err", fe.message)}
         </div>
-        {/* ลูกค้ามาจากไหน (ซ่อน) — แสดงในหลังบ้านคู่กับข้อความ */}
+        {/* ลูกค้ามาจากไหน (ซ่อน) — แสดงในระบบจัดการเว็บไซต์คู่กับข้อความ */}
         <VisitSourceFields />
         {/* honeypot */}
         <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">

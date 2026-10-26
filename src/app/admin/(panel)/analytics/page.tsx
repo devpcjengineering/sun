@@ -126,7 +126,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     <>
       <PageHeader
         title="สถิติเข้าชม"
-        desc="ยอดเข้าชมเว็บไซต์ และลูกค้ามาจากไหนบ้าง — นับจากหน้าเว็บจริง ไม่นับหลังบ้านและบอต"
+        desc="ยอดเข้าชมเว็บไซต์ และลูกค้ามาจากไหนบ้าง — นับจากหน้าเว็บจริง ไม่นับระบบจัดการเว็บไซต์และบอต"
         action={
           <nav aria-label="ช่วงเวลา" className="flex gap-1 rounded-lg border border-line bg-white p-1">
             {PERIODS.map((p) => {

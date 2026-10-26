@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { useBusyWhile } from "@/lib/busy";
 import { btnPrimary } from "./ui";
 
-/** ปุ่มบันทึก — แสดง spinner ที่ปุ่ม และเปิดตัวโหลดรวมของหลังบ้านระหว่างรอ server action */
+/** ปุ่มบันทึก — แสดง spinner ที่ปุ่ม และเปิดตัวโหลดรวมของระบบจัดการเว็บไซต์ระหว่างรอ server action */
 export function SubmitButton({ children = "บันทึก", className = btnPrimary }: { children?: ReactNode; className?: string }) {
   const { pending } = useFormStatus();
   useBusyWhile(pending, "กำลังบันทึก…");

@@ -4,7 +4,7 @@ import { createClient, getAdminContext } from "@/lib/supabase/server";
 import { AdminShell } from "@/components/admin/shell/AdminShell";
 
 export const metadata: Metadata = {
-  title: { default: "หลังบ้าน", template: "%s | หลังบ้าน SUNNAKHON" },
+  title: { default: "ระบบจัดการเว็บไซต์", template: "%s | ระบบจัดการเว็บไซต์ SUNNAKHON" },
   robots: { index: false, follow: false },
 };
 
