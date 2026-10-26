@@ -129,7 +129,25 @@ export type Inquiry = {
   service: string | null;
   message: string;
   status: "new" | "read" | "done";
+  // ลูกค้ามาจากไหน (อาจเป็น undefined ถ้าฐานข้อมูลยังไม่ได้รัน schema ล่าสุด)
+  source?: string | null; // google / facebook / direct / โดเมน
+  referrer?: string | null; // URL หน้าที่ลิงก์มา
+  landing_path?: string | null; // หน้าแรกที่เข้ามา
   created_at: string;
+};
+
+/** ผลจาก rpc page_view_summary — สถิติเข้าชมเว็บไซต์ */
+export type AnalyticsSummary = {
+  days: number;
+  views: number;
+  visitors: number;
+  inquiries: number;
+  daily: { day: string; views: number; visitors: number }[];
+  pages: { key: string; count: number }[];
+  sources: { key: string; count: number }[];
+  countries: { key: string; count: number }[];
+  devices: { key: "mobile" | "desktop"; count: number }[];
+  inquiry_sources: { key: string; count: number }[];
 };
 
 // ───────── สิทธิ์ผู้ดูแลระบบ ─────────

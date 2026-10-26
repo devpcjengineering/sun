@@ -10,6 +10,7 @@ import {
   Tags,
   MessageSquareQuote,
   Inbox,
+  BarChart3,
   Settings,
   ShieldCheck,
   type LucideIcon,
@@ -27,6 +28,7 @@ const NAV: NavItem[] = [
   { href: "/admin/packages", label: "แพ็คเก็จ/ราคา", icon: Tags },
   { href: "/admin/testimonials", label: "เสียงลูกค้า", icon: MessageSquareQuote },
   { href: "/admin/inquiries", label: "ข้อความติดต่อ", icon: Inbox, badge: "unread" },
+  { href: "/admin/analytics", label: "สถิติเข้าชม", icon: BarChart3 },
   { href: "/admin/settings", label: "ตั้งค่าเว็บไซต์", icon: Settings, manageOnly: true },
   { href: "/admin/admins", label: "ผู้ดูแลระบบ", icon: ShieldCheck, manageOnly: true },
 ];

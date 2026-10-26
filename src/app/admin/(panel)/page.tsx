@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
+  BarChart3,
   Building2,
   CheckCircle2,
   Circle,
@@ -69,6 +70,11 @@ function CheckItem({ ok, title, hint }: { ok: boolean; title: string; hint?: str
   );
 }
 
+/** ISO ของเวลาเมื่อ n วันก่อน (คำนวณนอก render ตามกฎ react-hooks/purity) */
+function daysAgoIso(n: number) {
+  return new Date(Date.now() - n * 86_400_000).toISOString();
+}
+
 function formatDate(iso: string) {
   return new Intl.DateTimeFormat("th-TH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Bangkok" }).format(
     new Date(iso),
@@ -92,7 +98,7 @@ export default async function DashboardPage() {
 
   const head = (table: string) => supabase.from(table).select("id", { count: "exact", head: true });
 
-  const [works, articles, published, drafts, clients, unread, latest] = await Promise.all([
+  const [works, articles, published, drafts, clients, unread, latest, views7] = await Promise.all([
     head("posts").eq("kind", "work").eq("published", true),
     head("posts").eq("kind", "article").eq("published", true),
     head("posts").eq("published", true),
@@ -100,10 +106,13 @@ export default async function DashboardPage() {
     head("clients"),
     head("inquiries").eq("status", "new"),
     supabase.from("inquiries").select("*").order("created_at", { ascending: false }).limit(5),
+    // สถิติเข้าชม 7 วัน — ถ้ายังไม่ได้รัน schema ล่าสุด แค่ไม่แสดงตัวเลข (ไม่ถือเป็น error ของแดชบอร์ด)
+    head("page_views").gte("created_at", daysAgoIso(7)),
   ]);
 
   const dbError = [works, articles, published, drafts, clients, unread, latest].find((r) => r.error)?.error;
   const inquiries = (latest.data ?? []) as Inquiry[];
+  const weekViews = views7.error ? null : (views7.count ?? 0);
 
   // ตรวจ env แบบปลอดภัย: บอกแค่ว่า "มี/ไม่มี" ไม่เปิดเผยค่า
   const has = (k: string) => Boolean(process.env[k]);
@@ -173,12 +182,13 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard label="ผลงานที่เผยแพร่" value={dbError ? null : (works.count ?? 0)} icon={FileText} href="/admin/posts?kind=work&status=published" />
         <StatCard label="บทความที่เผยแพร่" value={dbError ? null : (articles.count ?? 0)} icon={Newspaper} href="/admin/posts?kind=article&status=published" />
         <StatCard label="ฉบับร่าง (ผลงาน+บทความ)" value={dbError ? null : (drafts.count ?? 0)} icon={FilePen} href="/admin/posts?status=draft" />
         <StatCard label="ลูกค้า/โลโก้" value={dbError ? null : (clients.count ?? 0)} icon={Building2} href="/admin/clients" />
         <StatCard label="ข้อความที่ยังไม่อ่าน" value={dbError ? null : (unread.count ?? 0)} icon={Inbox} href="/admin/inquiries" tone="red" />
+        <StatCard label="เข้าชมเว็บ 7 วัน" value={weekViews} icon={BarChart3} href="/admin/analytics?days=7" />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">

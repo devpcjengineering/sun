@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { CircleAlert, CircleCheck, Loader, Send } from "lucide-react";
 import { submitInquiry, type ContactState } from "@/app/(site)/contact/actions";
+import { VisitSourceFields } from "./VisitSourceFields";
 
 const initial: ContactState = { ok: false };
 
@@ -116,6 +117,8 @@ export default function ContactForm({ services }: { services: string[] }) {
           />
           {err("message-err", fe.message)}
         </div>
+        {/* ลูกค้ามาจากไหน (ซ่อน) — แสดงในหลังบ้านคู่กับข้อความ */}
+        <VisitSourceFields />
         {/* honeypot */}
         <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
           <label htmlFor="website">เว็บไซต์</label>

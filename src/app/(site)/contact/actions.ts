@@ -34,6 +34,11 @@ export async function submitInquiry(_prev: ContactState, formData: FormData): Pr
     return { ok: false, error: "กรุณาตรวจสอบข้อมูลอีกครั้ง", fieldErrors };
   }
 
+  // ลูกค้ามาจากไหน (จาก TrackPageView ผ่านช่องซ่อน) — ไม่บังคับ
+  const source = str(formData.get("visit_source"), 100).toLowerCase();
+  const referrer = str(formData.get("visit_referrer"), 1000);
+  const landing = str(formData.get("visit_landing"), 300);
+
   try {
     const sb = await createClient();
     const { error } = await sb.from("inquiries").insert({
@@ -42,6 +47,9 @@ export async function submitInquiry(_prev: ContactState, formData: FormData): Pr
       email: email || null,
       service: service || null,
       message,
+      source: source || null,
+      referrer: /^https?:\/\//i.test(referrer) ? referrer : null,
+      landing_path: landing.startsWith("/") ? landing : null,
     });
     if (error) throw error;
     return { ok: true };

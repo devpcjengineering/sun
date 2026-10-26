@@ -220,6 +220,100 @@ create table if not exists public.inquiries (
   created_at timestamptz not null default now()
 );
 
+-- ลูกค้ามาจากไหน: บันทึกติดไปกับข้อความติดต่อ (source = google/facebook/direct/โดเมน, หน้าแรกที่เข้ามา)
+alter table public.inquiries add column if not exists source text;
+alter table public.inquiries add column if not exists referrer text;
+alter table public.inquiries add column if not exists landing_path text;
+
+-- ───────── page_views (สถิติเข้าชมเว็บไซต์ — เก็บเอง ไม่ใช้ cookie) ─────────
+create table if not exists public.page_views (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  path text not null,
+  source text,            -- google / facebook / direct / โดเมนที่ลิงก์มา (null = คลิกภายในเว็บ)
+  referrer text,          -- โดเมนของหน้าที่ลิงก์มา
+  utm_medium text,
+  utm_campaign text,
+  country text,           -- รหัสประเทศจาก Vercel (TH, US, ...)
+  device text not null default 'desktop' check (device in ('mobile','desktop')),
+  visitor text            -- hash รายวันของ ip+ua (นับผู้เข้าชมไม่ซ้ำ ไม่ระบุตัวตน)
+);
+create index if not exists page_views_created_idx on public.page_views (created_at desc);
+
+-- สรุปสถิติย้อนหลัง p_days วัน (เฉพาะแอดมิน) — คืน jsonb ก้อนเดียวให้หน้าหลังบ้าน
+create or replace function public.page_view_summary(p_days int default 30)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  -- เวลาท้องถิ่นไทย (timestamp ไม่มี tz) ตั้งแต่ต้นวันแรกของช่วง
+  since timestamp := date_trunc('day', now() at time zone 'Asia/Bangkok') - make_interval(days => greatest(p_days, 1) - 1);
+  result jsonb;
+begin
+  if not public.is_admin() then
+    raise exception 'forbidden' using errcode = '42501';
+  end if;
+
+  with v as (
+    select * from public.page_views
+    where created_at >= since at time zone 'Asia/Bangkok'
+  ),
+  q as (
+    select * from public.inquiries
+    where created_at >= since at time zone 'Asia/Bangkok'
+  )
+  select jsonb_build_object(
+    'days', greatest(p_days, 1),
+    'views', (select count(*) from v),
+    'visitors', (select count(distinct visitor) from v where visitor is not null),
+    'inquiries', (select count(*) from q),
+    'daily', (
+      select coalesce(jsonb_agg(jsonb_build_object('day', d.day::date, 'views', coalesce(x.views, 0), 'visitors', coalesce(x.visitors, 0)) order by d.day), '[]'::jsonb)
+      from generate_series(since::date, (now() at time zone 'Asia/Bangkok')::date, interval '1 day') as d(day)
+      left join (
+        select (created_at at time zone 'Asia/Bangkok')::date as day, count(*) as views, count(distinct visitor) as visitors
+        from v group by 1
+      ) x on x.day = d.day::date
+    ),
+    'pages', (
+      select coalesce(jsonb_agg(jsonb_build_object('key', path, 'count', c) order by c desc), '[]'::jsonb)
+      from (select path, count(*) as c from v group by path order by c desc limit 10) t
+    ),
+    'sources', (
+      select coalesce(jsonb_agg(jsonb_build_object('key', source, 'count', c) order by c desc), '[]'::jsonb)
+      from (select source, count(*) as c from v where source is not null group by source order by c desc limit 10) t
+    ),
+    'countries', (
+      select coalesce(jsonb_agg(jsonb_build_object('key', country, 'count', c) order by c desc), '[]'::jsonb)
+      from (select coalesce(country, '??') as country, count(*) as c from v group by 1 order by c desc limit 8) t
+    ),
+    'devices', (
+      select coalesce(jsonb_agg(jsonb_build_object('key', device, 'count', c) order by c desc), '[]'::jsonb)
+      from (select device, count(*) as c from v group by device) t
+    ),
+    'inquiry_sources', (
+      select coalesce(jsonb_agg(jsonb_build_object('key', source, 'count', c) order by c desc), '[]'::jsonb)
+      from (select coalesce(source, 'unknown') as source, count(*) as c from q group by 1 order by c desc limit 10) t
+    )
+  ) into result;
+
+  return result;
+end;
+$$;
+
+-- ลบข้อมูลเก่ากว่า 400 วัน (เรียกจากหลังบ้าน)
+create or replace function public.prune_page_views()
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  delete from public.page_views where created_at < now() - interval '400 days' and public.is_admin();
+$$;
+
 -- triggers updated_at
 do $$
 declare t text;
@@ -239,6 +333,7 @@ alter table public.clients       enable row level security;
 alter table public.packages      enable row level security;
 alter table public.testimonials  enable row level security;
 alter table public.inquiries     enable row level security;
+alter table public.page_views    enable row level security;
 
 -- admins: เฉพาะแอดมินเท่านั้น
 drop policy if exists admins_all on public.admins;
@@ -270,12 +365,25 @@ drop policy if exists inquiries_insert on public.inquiries;
 drop policy if exists inquiries_admin on public.inquiries;
 create policy inquiries_insert on public.inquiries for insert with check (
   length(name) between 1 and 200 and length(message) between 1 and 5000
+  and coalesce(length(source), 0) <= 100 and coalesce(length(referrer), 0) <= 1000 and coalesce(length(landing_path), 0) <= 300
 );
 create policy inquiries_admin on public.inquiries for all using (public.is_admin()) with check (public.is_admin());
 
+-- page_views: เว็บบันทึกได้ (ผ่าน /api/track) / แอดมินอ่าน-ลบได้
+drop policy if exists page_views_insert on public.page_views;
+drop policy if exists page_views_admin on public.page_views;
+create policy page_views_insert on public.page_views for insert with check (
+  length(path) between 1 and 300
+  and coalesce(length(source), 0) <= 100 and coalesce(length(referrer), 0) <= 200
+  and coalesce(length(utm_medium), 0) <= 100 and coalesce(length(utm_campaign), 0) <= 100
+  and coalesce(length(country), 0) <= 2 and coalesce(length(visitor), 0) <= 64
+);
+create policy page_views_admin on public.page_views for all using (public.is_admin()) with check (public.is_admin());
+
 grant usage on schema public to anon, authenticated;
 grant select on public.site_settings, public.services, public.posts, public.clients, public.packages, public.testimonials to anon, authenticated;
-grant insert on public.inquiries to anon, authenticated;
+grant insert on public.inquiries, public.page_views to anon, authenticated;
+grant execute on function public.page_view_summary(int), public.prune_page_views() to authenticated;
 grant all on all tables in schema public to authenticated;
 
 -- ───────── Seed ─────────

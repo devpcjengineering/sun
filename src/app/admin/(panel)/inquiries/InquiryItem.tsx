@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
-import { Check, ChevronDown, Mail, Phone, RotateCcw, Trash2 } from "lucide-react";
+import { Check, ChevronDown, Mail, MapPinned, Phone, RotateCcw, Trash2 } from "lucide-react";
 import { Badge } from "@/components/admin/ui";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
+import { sourceLabel } from "@/lib/analytics";
 import type { Inquiry } from "@/lib/types";
 import { deleteInquiry, openInquiry, setInquiryStatus } from "./actions";
 
@@ -42,6 +43,7 @@ export function InquiryItem({ inquiry, createdLabel }: { inquiry: Inquiry; creat
             <p className={`text-ink ${status === "new" ? "font-semibold" : "font-medium"}`}>{inquiry.name}</p>
             <Badge tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</Badge>
             {inquiry.service && <Badge tone="black">{inquiry.service}</Badge>}
+            {inquiry.source && <Badge tone="gray">มาจาก {sourceLabel(inquiry.source)}</Badge>}
             <time dateTime={inquiry.created_at} className="text-xs text-muted">
               {createdLabel}
             </time>
@@ -67,6 +69,25 @@ export function InquiryItem({ inquiry, createdLabel }: { inquiry: Inquiry; creat
           )}
           {!inquiry.phone && !inquiry.email && <span className="text-xs text-muted">ไม่มีช่องทางติดต่อกลับ</span>}
         </div>
+
+        {(inquiry.source || inquiry.landing_path) && (
+          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-muted">
+            <MapPinned className="size-3.5 shrink-0" aria-hidden />
+            <span>
+              ลูกค้ามาจาก <span className="font-medium text-ink">{sourceLabel(inquiry.source)}</span>
+            </span>
+            {inquiry.landing_path && (
+              <span>
+                · เข้าเว็บครั้งแรกที่หน้า <span className="font-medium text-ink">{inquiry.landing_path}</span>
+              </span>
+            )}
+            {inquiry.referrer && (
+              <a href={inquiry.referrer} target="_blank" rel="noopener noreferrer" className="truncate underline underline-offset-2 hover:text-ink">
+                ลิงก์ต้นทาง
+              </a>
+            )}
+          </p>
+        )}
 
         <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
           {status !== "read" && (
